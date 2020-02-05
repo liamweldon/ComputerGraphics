@@ -198,8 +198,9 @@ bool unitTest7() {
         0, 0, 0, 0,
         4, 2, 7, 1,
         5, 2, 1, 3);
-    Vector4f row0 = a[0];
-    Vector4f col0 = a.column(0);
+    Vector4f row0 = a.row(0);
+    Vector4f col0 = a[0];
+
     if (row0[0] == 1 &&
         row0[1] == 2 &&
         row0[2] == 3 &&
@@ -210,8 +211,8 @@ bool unitTest7() {
         col0[3] == 5) {
         return true;
     }
-
-     //std::cout << "" + to_string(col0[0]) + ", " + to_string(col0[1]) + ", " + to_string(col0[2]) + ", " + to_string(col0[3]);
+    a.print(a);
+     std::cout << "" + to_string(col0[0]) + ", " + to_string(col0[1]) + ", " + to_string(col0[2]) + ", " + to_string(col0[3]);
      return false;
 }
 
@@ -232,12 +233,11 @@ bool unitTest8() {
     Matrix4f c = a.times(b);
 
     Matrix4f test(
-        15, 15, 18, 15,
+        15, 15, 17, 15,
         0, 0, 0, 0,
         14, 14, 22, 14,
         11, 11, 21, 11
     );
-    cout << to_string(Dot(a[0], Vector4f(b.column(0)))) + "\n\n";
 
     float floatCompArr[16] = {
             test[0][0] - c[0][0],
@@ -275,7 +275,6 @@ bool unitTest8() {
             ) {
             return true;
         }
-        c.print(c);
         return false;
 
 }
@@ -294,7 +293,7 @@ bool unitTest9() {
         7, 1, 1, 1);
 
 
-    float dot = Dot(a[0], Vector4f(b.column(0)));
+    float dot = Dot(Vector4f(a.row(0)), b[0]);
     
     if (dot < 86.01 && dot > 85.99) {
         return true;

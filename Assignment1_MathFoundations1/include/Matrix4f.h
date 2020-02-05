@@ -24,10 +24,10 @@ public:
 
     // TODO: Row or column major order you decide!
     // Matrix constructor with 9 scalar values.
-    Matrix4f( float n00, float n01, float n02, float n03,
-              float n10, float n11, float n12, float n13,
-              float n20, float n21, float n22, float n23,
-              float n30, float n31, float n32, float n33){
+    Matrix4f( float n00, float n10, float n20, float n30,
+              float n01, float n11, float n21, float n31,
+              float n02, float n12, float n22, float n32,
+              float n03, float n13, float n23, float n33){
 
         n[0][0] = n00; n[1][0] = n10; n[2][0] = n20; n[3][0] = n30;
         n[0][1] = n01; n[1][1] = n11; n[2][1] = n21; n[3][1] = n31;
@@ -74,23 +74,22 @@ public:
       return (*reinterpret_cast<const Vector4f *>(n[j]));
     }
 
-    Vector4f& column(int j) {
-        float col[4];
-        col[0] = n[0][j];
-        col[1] = n[1][j];
-        col[2] = n[2][j];
-        col[3] = n[3][j];
-        Vector4f vec = Vector4f(col);
-        return Vector4f(col);
+    Vector4f& row(int j) {
+        float row[4];
+        row[0] = n[0][j];
+        row[1] = n[1][j];
+        row[2] = n[2][j];
+        row[3] = n[3][j];
+        return Vector4f(row);
     }
 
-    const Vector4f& column(int j) const {
-        float col[4];
-        col[0] = n[j][0];
-        col[1] = n[j][1];
-        col[2] = n[j][2];
-        col[3] = n[j][3];
-        const Vector4f rv = Vector4f(col);
+    const Vector4f& row(int j) const {
+        float row[4];
+        row[0] = n[0][j];
+        row[1] = n[1][j];
+        row[2] = n[2][j];
+        row[3] = n[3][j];
+        const Vector4f rv = Vector4f(row);
         return rv;
     }
 
@@ -147,10 +146,10 @@ public:
     Matrix4f times(const Matrix4f& B) const{
         const Matrix4f& A = *this;
         float arr[4][4];
-        arr[0][0] = Dot(A[0], Vector4f(B.column(0))); arr[0][1] = Dot(A[0], Vector4f(B.column(1))); arr[0][2] = Dot(A[0], Vector4f(B.column(2))); arr[0][3] = Dot(A[0], Vector4f(B.column(3)));
-        arr[1][0] = Dot(A[1], Vector4f(B.column(0))); arr[1][1] = Dot(A[1], Vector4f(B.column(1))); arr[1][2] = Dot(A[1], Vector4f(B.column(2))); arr[1][3] = Dot(A[1], Vector4f(B.column(3)));
-        arr[2][0] = Dot(A[2], Vector4f(B.column(0))); arr[2][1] = Dot(A[2], Vector4f(B.column(1))); arr[2][2] = Dot(A[2], Vector4f(B.column(2))); arr[2][3] = Dot(A[2], Vector4f(B.column(3)));
-        arr[3][0] = Dot(A[3], Vector4f(B.column(0))); arr[3][1] = Dot(A[3], Vector4f(B.column(1))); arr[3][2] = Dot(A[3], Vector4f(B.column(2))); arr[3][3] = Dot(A[3], Vector4f(B.column(3)));
+        arr[0][0] = Dot(Vector4f(A.row(0)), B[0]); arr[0][1] = Dot(Vector4f(A.row(0)), B[1]); arr[0][2] = Dot(Vector4f(A.row(0)), B[2]); arr[0][3] = Dot(Vector4f(A.row(0)), B[3]);
+        arr[1][0] = Dot(Vector4f(A.row(1)), B[0]); arr[1][1] = Dot(Vector4f(A.row(1)), B[1]); arr[1][2] = Dot(Vector4f(A.row(1)), B[2]); arr[1][3] = Dot(Vector4f(A.row(1)), B[3]);
+        arr[2][0] = Dot(Vector4f(A.row(2)), B[0]); arr[2][1] = Dot(Vector4f(A.row(2)), B[1]); arr[2][2] = Dot(Vector4f(A.row(2)), B[2]); arr[2][3] = Dot(Vector4f(A.row(2)), B[3]);
+        arr[3][0] = Dot(Vector4f(A.row(3)), B[0]); arr[3][1] = Dot(Vector4f(A.row(3)), B[1]); arr[3][2] = Dot(Vector4f(A.row(3)), B[2]); arr[3][3] = Dot(Vector4f(A.row(3)), B[3]);
 
         Matrix4f mat4 = 
    Matrix4f(arr[0][0], arr[0][1], arr[0][2], arr[0][3],
