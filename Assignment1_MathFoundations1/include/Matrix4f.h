@@ -22,8 +22,6 @@ private:
 public:
     Matrix4f() = default;
 
-    // TODO: Row or column major order you decide!
-    // Matrix constructor with 9 scalar values.
     Matrix4f( float n00, float n10, float n20, float n30,
               float n01, float n11, float n21, float n31,
               float n02, float n12, float n22, float n32,
@@ -95,54 +93,51 @@ public:
 
     // Make a matrix rotate about various axis
     Matrix4f MakeRotationX(float t){
-        Matrix4f rotationMatrix =
+        *this =
             Matrix4f(
                 1.0f, 0.0f, 0.0f, 0.0f,
                 0.0f, cos(t), -sin(t), 0.0f,
                 0.0f, sin(t), cos(t), 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f);
-        *this = this->times(rotationMatrix);
         return(*this); // You will need to modify this.
                                         // When you test, test against glm_gtx_transform
     }
     Matrix4f MakeRotationY(float t){
-        Matrix4f rotationMatrix =
+        *this =
             Matrix4f(
                 cos(t), 0.0f, sin(t), 0.0f,
                 0.0f, 1.0f, 0.0f, 0.0f,
                 -sin(t), 0.0f, cos(t), 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f);
-        *this = this->times(rotationMatrix);
         return(*this);
 
                             // You will need to modify this.
                             // When you test, test against glm_gtx_transform
     }
     Matrix4f MakeRotationZ(float t){
-        Matrix4f rotationMatrix =
+        *this =
             Matrix4f(
                 cos(t), -sin(t), 0.0f, 0.0f,
                 sin(t), cos(t), 0.0f, 0.0f,
                 0.0f, 0.0f, 1.0f, 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f);
-        *this = this->times(rotationMatrix);
         return(*this);
                             // You will need to modify this.
                             // When you test, test against glm_gtx_transform
     }
     Matrix4f MakeScale(float sx,float sy, float sz){
-        Matrix4f scaleMatrix =
+        *this =
             Matrix4f(
                 sx, 0.0f, 0.0f, 0.0f,
                 0.0f, sy, 0.0f, 0.0f,
                 0.0f, 0.0f, sz, 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f);
-        *this = this->times(scaleMatrix);
         return(*this);
                             // You will need to modify this.
                             // When you test, test against glm_gtx_transform
     }
 
+    // written here so class functions can access
     Matrix4f times(const Matrix4f& B) const{
         const Matrix4f& A = *this;
         float arr[4][4];
@@ -156,7 +151,6 @@ public:
             arr[1][0], arr[1][1], arr[1][2], arr[1][3],
             arr[2][0], arr[2][1], arr[2][2], arr[2][3],
             arr[3][0], arr[3][1], arr[3][2], arr[3][3]);
-        //this->print(mat4);
         return mat4;
     }
 
@@ -178,7 +172,7 @@ Matrix4f operator *(const Matrix4f& A, const Matrix4f& B){
 // Matrix multiply by a vector
 
 Vector4f operator *(const Matrix4f& M, const Vector4f& v){
-  Vector4f vec = Vector4f(Dot(M[0], v), Dot(M[1], v), Dot(M[2], v), Dot(M[3], v));
+  Vector4f vec = Vector4f(Dot(Vector4f(M.row(0)), v), Dot(Vector4f(M.row(1)), v), Dot(Vector4f(M.row(2)), v), Dot(Vector4f(M.row(3)), v));
   return vec;
 }
 
