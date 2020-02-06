@@ -16,7 +16,6 @@ struct Vector4f{
     float x,y,z,w;
 
     // Default conostrutcor
-    // 'why default?' https://stackoverflow.com/questions/20828907/the-new-keyword-default-in-c11
     Vector4f() = default;
 
     // The "Real" constructor we want to use.
@@ -45,16 +44,12 @@ struct Vector4f{
     // Index operator, allowing us to access the individual
     // x,y,z,w components of our vector.
     float& operator[](int i){
-        // TODO: Discuss with your partner why this works.
-        //       There is no code to change here.
       return ((&x)[i]);
     }
 
     // Index operator, allowing us to access the individual
     // x,y,z,w components of our vector.
     const float& operator[](int i) const{
-        // TODO: Discuss with your partner why this works.
-        //       There is no code to change here.
         return ((&x)[i]);
     }
 

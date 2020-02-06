@@ -62,12 +62,12 @@ public:
       return (n[j][i]);
     }
 
-    // Return a single row vector from the matrix
+    // Return a single column vector from the matrix
     Vector4f& operator [](int j){
       return (*reinterpret_cast<Vector4f *>(n[j]));
     }
 
-    // Return a single row vector from the matrix
+    // Return a single column vector from the matrix
     const Vector4f& operator [](int j) const{
       return (*reinterpret_cast<const Vector4f *>(n[j]));
     }
@@ -99,8 +99,7 @@ public:
                 0.0f, cos(t), -sin(t), 0.0f,
                 0.0f, sin(t), cos(t), 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f);
-        return(*this); // You will need to modify this.
-                                        // When you test, test against glm_gtx_transform
+        return(*this); 
     }
     Matrix4f MakeRotationY(float t){
         *this =
@@ -110,9 +109,6 @@ public:
                 -sin(t), 0.0f, cos(t), 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f);
         return(*this);
-
-                            // You will need to modify this.
-                            // When you test, test against glm_gtx_transform
     }
     Matrix4f MakeRotationZ(float t){
         *this =
@@ -122,8 +118,6 @@ public:
                 0.0f, 0.0f, 1.0f, 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f);
         return(*this);
-                            // You will need to modify this.
-                            // When you test, test against glm_gtx_transform
     }
     Matrix4f MakeScale(float sx,float sy, float sz){
         *this =
@@ -133,11 +127,9 @@ public:
                 0.0f, 0.0f, sz, 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f);
         return(*this);
-                            // You will need to modify this.
-                            // When you test, test against glm_gtx_transform
     }
 
-    // written here so class functions can access
+    // Matrix multiplication, written here so class functions can access
     Matrix4f times(const Matrix4f& B) const{
         const Matrix4f& A = *this;
         float arr[4][4];
@@ -147,18 +139,18 @@ public:
         arr[3][0] = Dot(Vector4f(A.row(3)), B[0]); arr[3][1] = Dot(Vector4f(A.row(3)), B[1]); arr[3][2] = Dot(Vector4f(A.row(3)), B[2]); arr[3][3] = Dot(Vector4f(A.row(3)), B[3]);
 
         Matrix4f mat4 = 
-   Matrix4f(arr[0][0], arr[0][1], arr[0][2], arr[0][3],
-            arr[1][0], arr[1][1], arr[1][2], arr[1][3],
-            arr[2][0], arr[2][1], arr[2][2], arr[2][3],
-            arr[3][0], arr[3][1], arr[3][2], arr[3][3]);
+           Matrix4f(arr[0][0], arr[0][1], arr[0][2], arr[0][3],
+                    arr[1][0], arr[1][1], arr[1][2], arr[1][3],
+                    arr[2][0], arr[2][1], arr[2][2], arr[2][3],
+                    arr[3][0], arr[3][1], arr[3][2], arr[3][3]);
         return mat4;
     }
 
-    void print(Matrix4f& myScaled) const{
-        std::cout << ", " + std::to_string(myScaled[0][0]) + ", " + std::to_string(myScaled[1][0]) + ", " + std::to_string(myScaled[2][0]) + ", " + std::to_string(myScaled[3][0]) << "\n";
-        std::cout << ", " + std::to_string(myScaled[0][1]) + ", " + std::to_string(myScaled[1][1]) + ", " + std::to_string(myScaled[2][1]) + ", " + std::to_string(myScaled[3][1]) << "\n";
-        std::cout << ", " + std::to_string(myScaled[0][2]) + ", " + std::to_string(myScaled[1][2]) + ", " + std::to_string(myScaled[2][2]) + ", " + std::to_string(myScaled[3][2]) << "\n";
-        std::cout << ", " + std::to_string(myScaled[0][3]) + ", " + std::to_string(myScaled[1][3]) + ", " + std::to_string(myScaled[2][3]) + ", " + std::to_string(myScaled[3][3]) << "\n";
+    void print(Matrix4f& m) const{
+        std::cout << ", " + std::to_string(m[0][0]) + ", " + std::to_string(m[1][0]) + ", " + std::to_string(m[2][0]) + ", " + std::to_string(m[3][0]) << "\n";
+        std::cout << ", " + std::to_string(m[0][1]) + ", " + std::to_string(m[1][1]) + ", " + std::to_string(m[2][1]) + ", " + std::to_string(m[3][1]) << "\n";
+        std::cout << ", " + std::to_string(m[0][2]) + ", " + std::to_string(m[1][2]) + ", " + std::to_string(m[2][2]) + ", " + std::to_string(m[3][2]) << "\n";
+        std::cout << ", " + std::to_string(m[0][3]) + ", " + std::to_string(m[1][3]) + ", " + std::to_string(m[2][3]) + ", " + std::to_string(m[3][3]) << "\n";
     }
 };
 
@@ -170,7 +162,6 @@ Matrix4f operator *(const Matrix4f& A, const Matrix4f& B){
 }
 
 // Matrix multiply by a vector
-
 Vector4f operator *(const Matrix4f& M, const Vector4f& v){
   Vector4f vec = Vector4f(Dot(Vector4f(M.row(0)), v), Dot(Vector4f(M.row(1)), v), Dot(Vector4f(M.row(2)), v), Dot(Vector4f(M.row(3)), v));
   return vec;

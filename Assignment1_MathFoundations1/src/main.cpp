@@ -63,7 +63,6 @@ bool compareVecs(Vector4f a, Vector4f b) {
     return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3];
 }
 
-// Sample unit test comparing against GLM.
 bool unitTest0(){
 	glm::mat4 glmIdentityMatrix = glm::mat4(1.0f);
 	Matrix4f myIdentity( 1.0f,0,0,0,
@@ -124,7 +123,6 @@ bool unitTest1(){
     return false;	
 }
 
-// Sample unit test comparing against GLM.
 bool unitTest2(){
 	glm::mat4 glmIdentityMatrix = glm::mat4(1.0f);
     
@@ -154,7 +152,6 @@ bool unitTest2(){
     return false;	
 }
 
-// Sample unit test comparing against GLM.
 bool unitTest3(){
 	glm::mat4 glmScale = glm::mat4(1.0f);
     glm::vec3 scaleVec = glm::vec3(2, 2, 2);
@@ -191,8 +188,7 @@ bool unitTest3(){
     return false;	
 }
 
-// Sample unit test comparing against GLM.
-// Testing operator
+
 bool unitTest4(){
 	glm::mat4 glmTest = glm::mat4(1.0f);
     glmTest[1][3] = 72.0f;
@@ -214,7 +210,6 @@ bool unitTest4(){
     return false;	
 }
 
-// Sample unit test testing your library
 bool unitTest5(){
   Vector4f a(1,1,1,1);
   Vector4f b(0,0,0,0);
@@ -346,7 +341,6 @@ bool unitTest9() {
     cout << to_string(dot) + "\n";
     return false;
 }
-// trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
 bool unitTest10() {
 
@@ -484,36 +478,125 @@ bool unitTest22() {
 }
 
 int main(){
-    // Keep track of the tests passed
+
     unsigned int testsPassed = 0;
-
     // Run 'unit tests'
-    std::cout << "Passed 0:  " << unitTest0() << " \n";
-    std::cout << "Passed 1:  " << unitTest1() << " \n";
-    std::cout << "Passed 2:  " << unitTest2() << " \n";
-    std::cout << "Passed 3:  " << unitTest3() << " \n";
-    std::cout << "Passed 4:  " << unitTest4() << " \n";
-    std::cout << "Passed 5:  " << unitTest5() << " \n";
-    std::cout << "Passed 6:  " << unitTest6() << " \n";
-    std::cout << "Passed 7:  " << unitTest7() << " \n";
-    std::cout << "Passed 8:  " << unitTest8() << " \n";
-    std::cout << "Passed 9:  " << unitTest9() << " \n";
-    std::cout << "Passed 10: " << unitTest10() << " \n";
-    std::cout << "Passed 11: " << unitTest11() << " \n";
-    std::cout << "Passed 12: " << unitTest12() << " \n";
-    std::cout << "Passed 13: " << unitTest13() << " \n";
-    std::cout << "Passed 14: " << unitTest14() << " \n";
-    std::cout << "Passed 15: " << unitTest15() << " \n";
-    std::cout << "Passed 16: " << unitTest16() << " \n";
-    std::cout << "Passed 17: " << unitTest17() << " \n";
-    std::cout << "Passed 18: " << unitTest18() << " \n";
-    std::cout << "Passed 19: " << unitTest19() << " \n";
-    std::cout << "Passed 20: " << unitTest20() << " \n";
-    std::cout << "Passed 21: " << unitTest21() << " \n";
-    std::cout << "Passed 22: " << unitTest22() << " \n";
-
-
-
+    bool passed = unitTest0();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 0:  " << passed << " \n";
+    passed = unitTest1();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 1:  " << passed << " \n";
+    passed = unitTest2();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 2:  " << passed << " \n";
+    passed = unitTest3();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 3:  " << passed << " \n";
+    passed = unitTest4();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 4:  " << passed << " \n";
+    passed = unitTest5();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 5:  " << passed << " \n";
+    passed = unitTest6();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 6:  " << passed << " \n";
+    passed = unitTest7();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 7:  " << passed << " \n";
+    passed = unitTest8();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 8:  " << passed << " \n";
+    passed = unitTest9();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 9:  " << passed << " \n";
+    passed = unitTest10();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 10: " << passed << " \n";
+    passed = unitTest11();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 11: " << passed << " \n";
+    passed = unitTest12();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 12: " << passed << " \n";
+    passed = unitTest13();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 13: " << passed << " \n";
+    passed = unitTest14();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 14: " << passed << " \n";
+    passed = unitTest15();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 15: " << passed << " \n";
+    passed = unitTest16();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 16: " << passed << " \n";
+    passed = unitTest17();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 17: " << passed << " \n";
+    passed = unitTest18();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 18: " << passed << " \n";
+    passed = unitTest19();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 19: " << passed << " \n";
+    passed = unitTest20();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 20: " << passed << " \n";
+    passed = unitTest21();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 21: " << passed << " \n";
+    passed = unitTest22();
+    if (passed) {
+        testsPassed += 1;
+    }
+    std::cout << "Passed 22: " << passed << " \n";
+    std::cout << "Passed " + to_string(testsPassed) + " tests.";
 
     return 0;
 }
