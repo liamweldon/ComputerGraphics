@@ -35,11 +35,13 @@ protected:
   QOpenGLBuffer ibo_;
   QOpenGLBuffer cbo_;
   QOpenGLShaderProgram shaderProgram_;
+  bool isTriangle;
 #else
   GLuint vboID_;
   GLuint iboID_;
   GLuint cboID_;
   unsigned int shaderID_;
+  bool isTriangle;
 
   unsigned int compileShader(unsigned int type, const QString& shaderSrc);
   
