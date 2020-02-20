@@ -17,6 +17,7 @@ include_directories(
 )
 
 set(srcs
+  Object.cpp
   BasicWidget.cpp
   Application.cpp
   main.cpp
