@@ -1,6 +1,11 @@
 #include <iostream>
 #include "BasicWidget.h"
 
+void errorLog(int loc) {
+    std::cout << "----------------" << std::to_string(loc) << "----------------" << std::endl;
+    std::cout << glGetError() << std::endl;
+}
+
 //////////////////////////////////////////////////////////////////////
 // Publics
 BasicWidget::BasicWidget(QWidget* parent) : QOpenGLWidget(parent)
@@ -10,6 +15,12 @@ BasicWidget::BasicWidget(QWidget* parent) : QOpenGLWidget(parent)
 
 BasicWidget::~BasicWidget()
 {
+    glDeleteProgram(shaderID_);
+    glDeleteBuffers(1, &vboID_);
+    glDeleteBuffers(1, &vboID2_);
+    glDeleteBuffers(1, &iboID_);
+    glDeleteBuffers(1, &iboID_);
+
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -21,7 +32,7 @@ QString BasicWidget::vertexShaderString() const
         "layout(location = 0) in vec3 position;\n"
         "void main()\n"
         "{\n"
-        "  gl_Position = vec4(position, 1.0);\n"
+        "  gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
         "}\n";
     return str;
 }
@@ -104,7 +115,7 @@ void BasicWidget::keyReleaseEvent(QKeyEvent* keyEvent)
         showObj1 = true;
         update();
     }
-    if (keyEvent->key() == Qt::Key_2) {
+    else if (keyEvent->key() == Qt::Key_2) {
         showObj1 = false;
         update();
     }
@@ -148,24 +159,23 @@ void BasicWidget::initializeGL()
   glBindBuffer(GL_ARRAY_BUFFER, vboID_);
   glBufferData(GL_ARRAY_BUFFER, numVertsObj1 * sizeof(GL_FLOAT), obj1Vertices, GL_STATIC_DRAW);
 
-
-  glGenBuffers(1, &iboID_);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID_);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndicesObj1 * sizeof(GLuint), obj1Indices, GL_STATIC_DRAW);
-
   glGenBuffers(1, &vboID2_);
   glBindBuffer(GL_ARRAY_BUFFER, vboID2_);
   glBufferData(GL_ARRAY_BUFFER, numVertsObj2 * sizeof(GL_FLOAT), obj2Vertices, GL_STATIC_DRAW);
 
 
+  glGenBuffers(1, &iboID_);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID_);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndicesObj1 * sizeof(GL_UNSIGNED_INT), obj1Indices, GL_STATIC_DRAW);
+
   glGenBuffers(1, &iboID2_);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID2_);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndicesObj2 * sizeof(GLuint), obj2Indices, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndicesObj2 * sizeof(GL_UNSIGNED_INT), obj2Indices, GL_STATIC_DRAW);
 
 
-  vao_.release();
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  vao_.release();
 
   glViewport(0, 0, width(), height());
 
@@ -185,49 +195,48 @@ void BasicWidget::resizeGL(int w, int h)
 
 void BasicWidget::paintGL()
 {
+  vao_.bind();
+
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
 
-  glClearColor(0.f, 0.f, 0.f, 1.f);
+  glClearColor(1.f, 1.f, 1.f, 1.f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glUseProgram(shaderID_);
  
-  int disable = 0;
+  glEnableVertexAttribArray(0);
 
   if (showObj1) {
-      glEnableVertexAttribArray(0);
       glBindBuffer(GL_ARRAY_BUFFER, vboID_);
       glVertexAttribPointer(0,        // Attribute 0 matches our layout for vertex positions
-          numVertsObj1,        // Size
+          3,        // Size
           GL_FLOAT, // Type
           GL_FALSE, // Not normalized
           0,        // Stride - no interleaving
           (void*)0  // nullptr
       );
-
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID_);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       glDrawElements(GL_TRIANGLES, numIndicesObj1, GL_UNSIGNED_INT, nullptr);
-      disable = 0;
   } 
   else {
-      glEnableVertexAttribArray(1);
       glBindBuffer(GL_ARRAY_BUFFER, vboID2_);
-      glVertexAttribPointer(1,        // Attribute 1 matches our layout for vertex positions
-          numVertsObj2,        // Size
+      glVertexAttribPointer(0,        // Attribute 1 matches our layout for vertex positions
+          3,        // Size
           GL_FLOAT, // Type
           GL_FALSE, // Not normalized
           0,        // Stride - no interleaving
           (void*)0  // nullptr
       );
-
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID2_);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       glDrawElements(GL_TRIANGLES, numIndicesObj2, GL_UNSIGNED_INT, nullptr);
-      disable = 1;
   }
-  glDisableVertexAttribArray(disable);
-  glUseProgram(NULL);
 
+  glDisableVertexAttribArray(0);
+  glUseProgram(NULL);
+  vao_.release();
 }
 
 

@@ -6,8 +6,8 @@
 #include "Object.h"
 
 
-#define DEFAULT_OBJ_FILE "../objects/bunny.obj"
-#define ALTERNATE_OBJ_FILE "../objects/monkey.obj"
+#define DEFAULT_OBJ_FILE "../objects/bunny_centered.obj"
+#define ALTERNATE_OBJ_FILE "../objects/monkey_centered.obj"
 
 /**
  * This is just a basic OpenGL widget that will allow a change of background color.

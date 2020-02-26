@@ -13,7 +13,6 @@ Object::Object(std::string fileToParse) {
     objFile.open(fileToParse);
 
     std::string line;
-    int first5 = 0;
 
     while (objFile.is_open() && getline(objFile, line)) {
       
@@ -23,29 +22,29 @@ Object::Object(std::string fileToParse) {
             continue;
         }
         else if (data.at(0).compare("v") == 0 && data.size() == 4) {
-            float* vertex = (float*) malloc(3 * sizeof(float));
+            GLfloat* vertex = (GLfloat*) malloc(3 * sizeof(GLfloat));
             vertex[0] = std::stof(data.at(1));
             vertex[1] = std::stof(data.at(2));
             vertex[2] = std::stof(data.at(3));
             vertices.push_back(vertex);
         }
         else if (data.at(0).compare("vn") == 0 && data.size() == 4) {
-            float* vertexNormal = (float*) malloc(3 * sizeof(float));;
+            GLfloat* vertexNormal = (GLfloat*) malloc(3 * sizeof(GLfloat));;
             vertexNormal[0] = std::stof(data.at(1));
             vertexNormal[1] = std::stof(data.at(2));
             vertexNormal[2] = std::stof(data.at(3));
             normalVertices.push_back(vertexNormal);
         }
         else if (data.at(0).compare("f") == 0 && data.size() == 4) {
-            int* face = (int*) malloc(6 * sizeof(int));
+            GLuint* face = (GLuint*) malloc(6 * sizeof(GLuint));
             for (int i = 0; i < 3; i++) {
                 std::string slashedFaceIdx = data.at(i + 1);
                 int pos = slashedFaceIdx.find('/');
                 if (pos != std::string::npos)
                     slashedFaceIdx.erase(pos, 1);
                 std::vector<std::string> idxNormalIdxTouple = splitString(slashedFaceIdx, '/');
-                face[i] = std::stoi(idxNormalIdxTouple.at(0));
-                face[3 + i] = std::stoi(idxNormalIdxTouple.at(1));
+                face[i] = std::stoi(idxNormalIdxTouple.at(0)) - 1;
+                face[3 + i] = std::stoi(idxNormalIdxTouple.at(1)) - 1;
             }
             faces.push_back(face);
         }
