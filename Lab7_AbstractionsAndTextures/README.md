@@ -40,9 +40,22 @@ During your co-ops, internships, and jobs you will often do a code review. Today
 
 Discuss with your partner the following:
 
-1. What are the advantages/disadvantages of the "Renderable" class?: *Add your answer here*
-2. Why do we call Renderable::draw(..) with the matrix info as parameters?: *Add your answer here*
+1. What are the advantages/disadvantages of the "Renderable" class?:
+Advantages:
+Easier readability/more understandable
+
+
+Disadvantages:
+Some functionality should probably be separated out (e.g, a renderable should be rendered, shouldn't necessarily render itself')
+
+
+2. Why do we call Renderable::draw(..) with the matrix info as parameters?:
+This allows us to change our camera location. The Renderable keeps track of it's model matrix
+
+
 3. How you can move models in the scene?: *Add your answer here*
+
+
 
 ## Part 2 - Textures
 

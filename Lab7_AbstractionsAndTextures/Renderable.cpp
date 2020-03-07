@@ -26,12 +26,12 @@ Renderable::~Renderable()
 
 void Renderable::createShaders()
 {
-	QString vertexFilename = "../../vert.glsl";
+	QString vertexFilename = "../vert.glsl";
 	bool ok = shader_.addShaderFromSourceFile(QOpenGLShader::Vertex, vertexFilename);
 	if (!ok) {
 		qDebug() << shader_.log();
 	}
-	QString fragmentFilename = "../../frag.glsl";
+	QString fragmentFilename = "../frag.glsl";
 	ok = shader_.addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentFilename);
 	if (!ok) {
 		qDebug() << shader_.log();
@@ -102,6 +102,9 @@ void Renderable::init(const QVector<QVector3D>& positions, const QVector<QVector
 
 	// Make sure we setup our shader inputs properly
 	shader_.enableAttributeArray(0);
+
+	// setAttributeBuffer(location, type, offset, tupleSize, stride);
+	// is size correct? we dont need sizeof(float)?
 	shader_.setAttributeBuffer(0, GL_FLOAT, 0, 3, vertexSize_ * sizeof(float));
 	shader_.enableAttributeArray(1);
 	shader_.setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), 2, vertexSize_ * sizeof(float));
@@ -116,8 +119,13 @@ void Renderable::update(const qint64 msSinceLastFrame)
 {
 	// For this lab, we want our polygon to rotate. 
 	float sec = msSinceLastFrame / 1000.0f;
+
+	// seconds * hz * angles
+	// with a rotation speed of .25Hz, T = 4s, where T is the amount of time for a full circle rotation
 	float anglePart = sec * rotationSpeed_ * 360.f;
 	rotationAngle_ += anglePart;
+
+	//essentially just mod 360
 	while(rotationAngle_ >= 360.0) {
 		rotationAngle_ -= 360.0;
 	}
@@ -142,6 +150,9 @@ void Renderable::draw(const QMatrix4x4& view, const QMatrix4x4& projection)
 
 	vao_.bind();
 	texture_.bind();
+	
+	// glDrawElements(GLenum mode, GLsizei count, GLenum type, nullptr)
+	// need to make actual count of indices
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	texture_.release();
 	vao_.release();
