@@ -8,6 +8,7 @@
 
 #define DEFAULT_OBJ_FILE "../objects/bunny_centered.obj"
 #define ALTERNATE_OBJ_FILE "../objects/monkey_centered.obj"
+#define TEXTURED_OBJ false
 
 /**
  * This is just a basic OpenGL widget that will allow a change of background color.
@@ -22,6 +23,11 @@ private:
     QString fragmentShaderString() const;
     void createShader();
     QOpenGLVertexArrayObject vao_;
+
+    void displayObject(GLuint vboID, GLuint iboID, Object* obj);
+
+    void loadVertexBuffer(GLuint* bufferID, Object* obj);
+    void loadIndexBuffer(GLuint* bufferID, Object* obj);
 
     Object* obj1;
     Object* obj2;
@@ -44,11 +50,7 @@ protected:
   void paintGL() override;
 
 public:
-    bool showObj1 = true;
-    int numVertsObj1;
-    int numIndicesObj1;
-    int numVertsObj2;
-    int numIndicesObj2;
+  bool showObj1 = true;
   BasicWidget(QWidget* parent=nullptr);
   virtual ~BasicWidget();
   

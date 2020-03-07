@@ -21,6 +21,8 @@ BasicWidget::~BasicWidget()
     glDeleteBuffers(1, &iboID_);
     glDeleteBuffers(1, &iboID_);
 
+    delete obj1;
+    delete obj2;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -139,58 +141,52 @@ void BasicWidget::initializeGL()
 
   createShader();
 
-  obj1 = new Object(DEFAULT_OBJ_FILE);
-  obj2 = new Object(ALTERNATE_OBJ_FILE);
-
-  numVertsObj1 = 3 * obj1->vertices.size();
-  numIndicesObj1 = 3 * obj1->faces.size();
-  GLfloat* obj1Vertices = obj1->consolidateVertices();
-  GLuint* obj1Indices = obj1->consolidateIndices();
-
-  numVertsObj2 = 3 * obj2->vertices.size();
-  numIndicesObj2 = 3 * obj2->faces.size();
-  GLfloat* obj2Vertices = obj2->consolidateVertices();
-  GLuint* obj2Indices = obj2->consolidateIndices();
+  obj1 = new Object(DEFAULT_OBJ_FILE, TEXTURED_OBJ);
+  obj2 = new Object(ALTERNATE_OBJ_FILE, TEXTURED_OBJ);
 
   vao_.create();
   vao_.bind();
 
-  glGenBuffers(1, &vboID_);
-  glBindBuffer(GL_ARRAY_BUFFER, vboID_);
-  glBufferData(GL_ARRAY_BUFFER, numVertsObj1 * sizeof(GL_FLOAT), obj1Vertices, GL_STATIC_DRAW);
+  loadVertexBuffer(&vboID_, obj1);
+  loadVertexBuffer(&vboID2_, obj2);
 
-  glGenBuffers(1, &vboID2_);
-  glBindBuffer(GL_ARRAY_BUFFER, vboID2_);
-  glBufferData(GL_ARRAY_BUFFER, numVertsObj2 * sizeof(GL_FLOAT), obj2Vertices, GL_STATIC_DRAW);
-
-
-  glGenBuffers(1, &iboID_);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID_);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndicesObj1 * sizeof(GL_UNSIGNED_INT), obj1Indices, GL_STATIC_DRAW);
-
-  glGenBuffers(1, &iboID2_);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID2_);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndicesObj2 * sizeof(GL_UNSIGNED_INT), obj2Indices, GL_STATIC_DRAW);
-
+  loadIndexBuffer(&iboID_, obj1);
+  loadIndexBuffer(&iboID2_, obj2);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
   vao_.release();
 
   glViewport(0, 0, width(), height());
-
-  delete[] obj1Indices;
-  delete[] obj1Vertices;
-  delete[] obj2Indices;
-  delete[] obj2Vertices;
-  delete obj1;
-  delete obj2;
 
 }
 
 void BasicWidget::resizeGL(int w, int h)
 {
   glViewport(0, 0, w, h);
+}
+
+void BasicWidget::loadVertexBuffer(GLuint* bufferID, Object* obj)
+{
+    void* vertices = obj->consolidateVertices();
+
+    glGenBuffers(1, bufferID);
+    glBindBuffer(GL_ARRAY_BUFFER, *bufferID);
+    glBufferData(GL_ARRAY_BUFFER, obj->numVerts * sizeof(GL_FLOAT), vertices, GL_STATIC_DRAW);
+
+    delete[] vertices;
+}
+
+void BasicWidget::loadIndexBuffer(GLuint* bufferID, Object* obj)
+{
+    void* indices = obj->consolidateIndices();
+
+    glGenBuffers(1, bufferID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *bufferID);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, obj->numIndices * sizeof(GL_UNSIGNED_INT), indices, GL_STATIC_DRAW);
+
+    delete[] indices;
 }
 
 void BasicWidget::paintGL()
@@ -207,36 +203,25 @@ void BasicWidget::paintGL()
  
   glEnableVertexAttribArray(0);
 
-  if (showObj1) {
-      glBindBuffer(GL_ARRAY_BUFFER, vboID_);
-      glVertexAttribPointer(0,        // Attribute 0 matches our layout for vertex positions
-          3,        // Size
-          GL_FLOAT, // Type
-          GL_FALSE, // Not normalized
-          0,        // Stride - no interleaving
-          (void*)0  // nullptr
-      );
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID_);
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      glDrawElements(GL_TRIANGLES, numIndicesObj1, GL_UNSIGNED_INT, nullptr);
-  } 
-  else {
-      glBindBuffer(GL_ARRAY_BUFFER, vboID2_);
-      glVertexAttribPointer(0,        // Attribute 1 matches our layout for vertex positions
-          3,        // Size
-          GL_FLOAT, // Type
-          GL_FALSE, // Not normalized
-          0,        // Stride - no interleaving
-          (void*)0  // nullptr
-      );
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID2_);
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      glDrawElements(GL_TRIANGLES, numIndicesObj2, GL_UNSIGNED_INT, nullptr);
-  }
+  showObj1 ? displayObject(vboID_, iboID_, obj1) : displayObject(vboID2_, iboID2_, obj2);
 
   glDisableVertexAttribArray(0);
   glUseProgram(NULL);
   vao_.release();
 }
 
+
+void BasicWidget::displayObject(GLuint vboID, GLuint iboID, Object* obj) {
+    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+    glVertexAttribPointer(0,        // Attribute 1 matches our layout for vertex positions
+        3,        // Size
+        GL_FLOAT, // Type
+        GL_FALSE, // Not normalized
+        0,        // Stride - no interleaving
+        (void*)0  // nullptr
+    );
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glDrawElements(GL_TRIANGLES, obj->numIndices, GL_UNSIGNED_INT, nullptr);
+}
 

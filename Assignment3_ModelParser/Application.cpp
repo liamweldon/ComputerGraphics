@@ -13,6 +13,7 @@ Application::~Application()
 void Application::buildGui()
 {
   // A simple menubar.
+
   QMenuBar* menu = menuBar();
   QMenu* file = menu->addMenu("File");
   QAction* exit = file->addAction("Quit", [this]() {close();});

@@ -1,4 +1,7 @@
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <string>
 #include <QtOpenGL>
 
 /**
@@ -11,6 +14,7 @@ class Object
 private:
     
 
+    std::vector<std::string> splitString(std::string splitMe, char token);
 
 
 protected:
@@ -21,7 +25,10 @@ public:
     std::vector<GLfloat*> vertices;
     std::vector<GLfloat*> normalVertices;
     std::vector<GLuint*> faces;
-    // each face is an int[6], face[0-2] = idx in vertices, face[3-5] = idx in normalVertices
+    std::vector<GLuint*> facesNormal;
+
+    int numVerts;
+    int numIndices;
 
     //returns vertices as an array
     GLfloat* consolidateVertices();
@@ -29,7 +36,7 @@ public:
     //returns indices as an array
     GLuint* consolidateIndices();
 
-    Object(std::string fileToParse);
+    Object(std::string fileToParse, bool texturedObj);
     ~Object();
 
 };
