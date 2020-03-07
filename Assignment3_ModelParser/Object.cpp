@@ -1,15 +1,14 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
 
 #include "Object.h"
 
-std::vector<std::string> splitString(std::string splitMe, char token);
 
-Object::Object(std::string fileToParse) {
+Object::Object(std::string fileToParse, bool texturedObj) {
+    
+    numVerts = 0;
+    numIndices = 0;
+
     std::ifstream objFile;
-
+    
     objFile.open(fileToParse);
 
     std::string line;
@@ -27,6 +26,7 @@ Object::Object(std::string fileToParse) {
             vertex[1] = std::stof(data.at(2));
             vertex[2] = std::stof(data.at(3));
             vertices.push_back(vertex);
+            numVerts += 3;
         }
         else if (data.at(0).compare("vn") == 0 && data.size() == 4) {
             GLfloat* vertexNormal = (GLfloat*) malloc(3 * sizeof(GLfloat));;
@@ -36,17 +36,29 @@ Object::Object(std::string fileToParse) {
             normalVertices.push_back(vertexNormal);
         }
         else if (data.at(0).compare("f") == 0 && data.size() == 4) {
-            GLuint* face = (GLuint*) malloc(6 * sizeof(GLuint));
+            GLuint* face = (GLuint*)malloc(3 * sizeof(GLuint));
+            GLuint* normalFace = (GLuint*)malloc(3 * sizeof(GLuint));
             for (int i = 0; i < 3; i++) {
-                std::string slashedFaceIdx = data.at(i + 1);
-                int pos = slashedFaceIdx.find('/');
-                if (pos != std::string::npos)
-                    slashedFaceIdx.erase(pos, 1);
-                std::vector<std::string> idxNormalIdxTouple = splitString(slashedFaceIdx, '/');
-                face[i] = std::stoi(idxNormalIdxTouple.at(0)) - 1;
-                face[3 + i] = std::stoi(idxNormalIdxTouple.at(1)) - 1;
+                if (texturedObj) {
+                    std::string slashedFaceIdx = data.at(i + 1);
+                    std::vector<std::string> idxData = splitString(slashedFaceIdx, '/');
+                    face[i] = std::stoi(idxData.at(0)) - 1;
+                    //TODO: double check this, I believe texture data is in the middle
+                    normalFace[i] = std::stoi(idxData.at(2)) - 1;
+                }
+                else {
+                    std::string slashedFaceIdx = data.at(i + 1);
+                    int pos = slashedFaceIdx.find('/');
+                    if (pos != std::string::npos)
+                        slashedFaceIdx.erase(pos, 1);
+                    std::vector<std::string> idxNormalIdxTouple = splitString(slashedFaceIdx, '/');
+                    face[i] = std::stoi(idxNormalIdxTouple.at(0)) - 1;
+                    normalFace[i] = std::stoi(idxNormalIdxTouple.at(1)) - 1;
+                }
             }
+            numIndices += 3;
             faces.push_back(face);
+            facesNormal.push_back(normalFace);
         }
     }
     objFile.close();
@@ -67,8 +79,21 @@ Object::~Object() {
 
 }
 
+
+GLuint* Object::consolidateIndices() {
+
+    const int numInts = 3 * faces.size();
+    GLuint* indices = (GLuint*)malloc(numInts * sizeof(GL_UNSIGNED_INT));
+    for (int i = 0; i < faces.size(); i++) {
+        indices[3 * i + 0] = faces.at(i)[0];
+        indices[3 * i + 1] = faces.at(i)[1];
+        indices[3 * i + 2] = faces.at(i)[2];
+    }
+    return indices;
+}
+
 // split string by token
-std::vector<std::string> splitString(std::string splitMe, char token) {
+std::vector<std::string> Object::splitString(std::string splitMe, char token) {
     std::vector<std::string> split;
     int prevIndex = 0;
 
@@ -84,17 +109,6 @@ std::vector<std::string> splitString(std::string splitMe, char token) {
     return split;
 }
 
-GLuint* Object::consolidateIndices() {
-
-    const int numInts = 3 * faces.size();
-    GLuint* indices = (GLuint*)malloc(numInts * sizeof(GL_UNSIGNED_INT));
-    for (int i = 0; i < faces.size(); i++) {
-        indices[3 * i + 0] = faces.at(i)[0];
-        indices[3 * i + 1] = faces.at(i)[1];
-        indices[3 * i + 2] = faces.at(i)[2];
-    }
-    return indices;
-}
 
 GLfloat* Object::consolidateVertices() {
     const int numFloats = 3 * vertices.size();
