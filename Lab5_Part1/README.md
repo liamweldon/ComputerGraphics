@@ -11,10 +11,11 @@
 ## Modify this section
 
 - How many hours did it take you to complete this lab?
+    1
 - Did you collaborate with any other students/TAs/Professors?
+    No
 - Did you use any external resources? (Cite them below)
-  - tbd
-  - tbd
+  - Just the slides (https://docs.google.com/presentation/d/1uUy31Qp7c3YOXrq-qTFmZdows7rqL3PZciY8zljLTCo/edit#slide=id.p1)
 - (Optional) What was your favorite part of the lab?
 - (Optional) How would you improve the lab?
 

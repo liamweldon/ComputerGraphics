@@ -12,12 +12,12 @@
 ## Modify this section
 
 - How many hours did it take you to complete this lab?
+	1
 - Did you collaborate with any other students/TAs/Professors?
+	No
 - Did you use any external resources? (Cite them below)
-  - tbd
-  - tbd
-- (Optional) What was your favorite part of the lab?
-- (Optional) How would you improve the lab?
+  Essence of linear algebra, chapter 3 - 5 (the provided youtube videos)
+
 
 ## Logistics
 

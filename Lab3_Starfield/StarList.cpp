@@ -23,7 +23,12 @@ void StarList::initStar(unsigned int idx)
 	stars_[idx].y = 2.0f * (randomGen_.generateDouble() - 0.5f) * spread_;
 	stars_[idx].z = (randomGen_.generateDouble() + 0.0001f) * spread_;
 	stars_[idx].speed = speed_;
-	stars_[idx].color = QColor(255, 255, 255);
+
+    // bright colors only
+	stars_[idx].color = QColor(
+        randomGen_.bounded(127, 255),
+        randomGen_.bounded(127, 255),
+        randomGen_.bounded(127, 255));
 }
 
 void StarList::updateAndRender(QImage& image, float delta, const QSize& windowSize)
@@ -35,7 +40,7 @@ void StarList::updateAndRender(QImage& image, float delta, const QSize& windowSi
 
     // Note the conversion to radians
     // TODO: Modify me
-    float tanHalfFOV = 1;
+    float tanHalfFOV = tan(0.610865);
 
     // Iterate through all of your stars 
     for (int i = 0; i < stars_.size(); i++) {
@@ -47,7 +52,7 @@ void StarList::updateAndRender(QImage& image, float delta, const QSize& windowSi
         }
 
         // TODO: Modify me!!
-        float givePerspective = 1;
+        float givePerspective = tanHalfFOV * stars_[i].z;
 
         // Apply our perspective
         int x = (int)((stars_[i].x / (givePerspective)) * halfWidth + halfWidth);

@@ -4,10 +4,15 @@
 #define MATRIX4F_H
 
 #include <cmath>
+#include <iostream>
+#include <string>
 
 // We need to Vector4f header in order to multiply a matrix
 // by a vector.
 #include "Vector4f.h"
+
+
+using namespace std;
 
 // Matrix 4f represents 4x4 matrices in Math
 struct Matrix4f{
@@ -17,17 +22,15 @@ private:
 public:
     Matrix4f() = default;
 
-    // TODO: Row or column major order you decide!
-    // Matrix constructor with 9 scalar values.
-    Matrix4f( float n00, float n01, float n02, float n03,
-              float n10, float n11, float n12, float n13,
-              float n20, float n21, float n22, float n23,
-              float n30, float n31, float n32, float n33){
+    Matrix4f( float n00, float n10, float n20, float n30,
+              float n01, float n11, float n21, float n31,
+              float n02, float n12, float n22, float n32,
+              float n03, float n13, float n23, float n33){
 
-        n[0][0] = n00; n[0][1] = n10; n[0][2] = n20; n[0][3] = n30;
-        n[1][0] = n01; n[1][1] = n11; n[1][2] = n21; n[1][3] = n31;
-        n[2][0] = n02; n[2][1] = n12; n[2][2] = n22; n[2][3] = n32;
-        n[3][0] = n03; n[3][1] = n13; n[3][2] = n23; n[3][3] = n33;
+        n[0][0] = n00; n[1][0] = n10; n[2][0] = n20; n[3][0] = n30;
+        n[0][1] = n01; n[1][1] = n11; n[2][1] = n21; n[3][1] = n31;
+        n[0][2] = n02; n[1][2] = n12; n[2][2] = n22; n[3][2] = n32;
+        n[0][3] = n03; n[1][3] = n13; n[2][3] = n23; n[3][3] = n33;
     }
 
     // Matrix constructor from four vectors.
@@ -41,7 +44,10 @@ public:
 
     // Makes the matrix an identity matrix
     void identity(){
-        // TODO:
+        n[0][0] = 1; n[0][1] = 0; n[0][2] = 0; n[0][3] = 0;
+        n[1][0] = 0; n[1][1] = 1; n[1][2] = 0; n[1][3] = 0;
+        n[2][0] = 0; n[2][1] = 0; n[2][2] = 1; n[2][3] = 0;
+        n[3][0] = 0; n[3][1] = 0; n[3][2] = 0; n[3][3] = 1;
     }
 
     // Index operator with two dimensions
@@ -56,57 +62,109 @@ public:
       return (n[j][i]);
     }
 
-    // Return a single  vector from the matrix (row or columnn major? hmm).
+    // Return a single column vector from the matrix
     Vector4f& operator [](int j){
       return (*reinterpret_cast<Vector4f *>(n[j]));
     }
 
-    // Return a single  vector from the matrix (row or columnn major? hmm).
+    // Return a single column vector from the matrix
     const Vector4f& operator [](int j) const{
       return (*reinterpret_cast<const Vector4f *>(n[j]));
     }
 
+    Vector4f& row(int j) {
+        float row[4];
+        row[0] = n[0][j];
+        row[1] = n[1][j];
+        row[2] = n[2][j];
+        row[3] = n[3][j];
+        return Vector4f(row);
+    }
+
+    const Vector4f& row(int j) const {
+        float row[4];
+        row[0] = n[0][j];
+        row[1] = n[1][j];
+        row[2] = n[2][j];
+        row[3] = n[3][j];
+        const Vector4f rv = Vector4f(row);
+        return rv;
+    }
+
     // Make a matrix rotate about various axis
     Matrix4f MakeRotationX(float t){
-        // TODO:
-        return(Matrix4f()); // You will need to modify this.
-                            // When you test, test against glm_gtx_transform
+        *this =
+            Matrix4f(
+                1.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, cos(t), -sin(t), 0.0f,
+                0.0f, sin(t), cos(t), 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f);
+        return(*this); 
     }
     Matrix4f MakeRotationY(float t){
-        // TODO:
-        return(Matrix4f()); // You will need to modify this.
-                            // When you test, test against glm_gtx_transform
+        *this =
+            Matrix4f(
+                cos(t), 0.0f, sin(t), 0.0f,
+                0.0f, 1.0f, 0.0f, 0.0f,
+                -sin(t), 0.0f, cos(t), 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f);
+        return(*this);
     }
     Matrix4f MakeRotationZ(float t){
-        // TODO:
-        return(Matrix4f()); // You will need to modify this.
-                            // When you test, test against glm_gtx_transform
+        *this =
+            Matrix4f(
+                cos(t), -sin(t), 0.0f, 0.0f,
+                sin(t), cos(t), 0.0f, 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f);
+        return(*this);
     }
     Matrix4f MakeScale(float sx,float sy, float sz){
-        // TODO:
-        return(Matrix4f()); // You will need to modify this.
-                            // When you test, test against glm_gtx_transform
+        *this =
+            Matrix4f(
+                sx, 0.0f, 0.0f, 0.0f,
+                0.0f, sy, 0.0f, 0.0f,
+                0.0f, 0.0f, sz, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f);
+        return(*this);
     }
 
+    // Matrix multiplication, written here so class functions can access
+    Matrix4f times(const Matrix4f& B) const{
+        const Matrix4f& A = *this;
+        float arr[4][4];
+        arr[0][0] = Dot(Vector4f(A.row(0)), B[0]); arr[0][1] = Dot(Vector4f(A.row(0)), B[1]); arr[0][2] = Dot(Vector4f(A.row(0)), B[2]); arr[0][3] = Dot(Vector4f(A.row(0)), B[3]);
+        arr[1][0] = Dot(Vector4f(A.row(1)), B[0]); arr[1][1] = Dot(Vector4f(A.row(1)), B[1]); arr[1][2] = Dot(Vector4f(A.row(1)), B[2]); arr[1][3] = Dot(Vector4f(A.row(1)), B[3]);
+        arr[2][0] = Dot(Vector4f(A.row(2)), B[0]); arr[2][1] = Dot(Vector4f(A.row(2)), B[1]); arr[2][2] = Dot(Vector4f(A.row(2)), B[2]); arr[2][3] = Dot(Vector4f(A.row(2)), B[3]);
+        arr[3][0] = Dot(Vector4f(A.row(3)), B[0]); arr[3][1] = Dot(Vector4f(A.row(3)), B[1]); arr[3][2] = Dot(Vector4f(A.row(3)), B[2]); arr[3][3] = Dot(Vector4f(A.row(3)), B[3]);
 
+        Matrix4f mat4 = 
+           Matrix4f(arr[0][0], arr[0][1], arr[0][2], arr[0][3],
+                    arr[1][0], arr[1][1], arr[1][2], arr[1][3],
+                    arr[2][0], arr[2][1], arr[2][2], arr[2][3],
+                    arr[3][0], arr[3][1], arr[3][2], arr[3][3]);
+        return mat4;
+    }
+
+    void print(Matrix4f& m) const{
+        std::cout << ", " + std::to_string(m[0][0]) + ", " + std::to_string(m[1][0]) + ", " + std::to_string(m[2][0]) + ", " + std::to_string(m[3][0]) << "\n";
+        std::cout << ", " + std::to_string(m[0][1]) + ", " + std::to_string(m[1][1]) + ", " + std::to_string(m[2][1]) + ", " + std::to_string(m[3][1]) << "\n";
+        std::cout << ", " + std::to_string(m[0][2]) + ", " + std::to_string(m[1][2]) + ", " + std::to_string(m[2][2]) + ", " + std::to_string(m[3][2]) << "\n";
+        std::cout << ", " + std::to_string(m[0][3]) + ", " + std::to_string(m[1][3]) + ", " + std::to_string(m[2][3]) + ", " + std::to_string(m[3][3]) << "\n";
+    }
 };
 
 // Matrix Multiplication
 Matrix4f operator *(const Matrix4f& A, const Matrix4f& B){
-  // TODO:
-  Matrix4f mat4;
 
-  return mat4;
+    Matrix4f mat4 = A.times(B);
+    return mat4;
 }
 
 // Matrix multiply by a vector
-
 Vector4f operator *(const Matrix4f& M, const Vector4f& v){
-  // TODO:
-  Vector4f vec;
-
+  Vector4f vec = Vector4f(Dot(Vector4f(M.row(0)), v), Dot(Vector4f(M.row(1)), v), Dot(Vector4f(M.row(2)), v), Dot(Vector4f(M.row(3)), v));
   return vec;
 }
-
 
 #endif
