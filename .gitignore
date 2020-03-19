@@ -1,0 +1,13 @@
+*/Debug/*
+*.sln
+*/x64/*
+*.vcxproj
+*.filters
+*/CMakeCache.txt
+*/CMakeFiles/*
+*.cmake
+*/.vs/*
+*/*.dir/*
+*/*_autogen/*
+*.user
+.vs/*
