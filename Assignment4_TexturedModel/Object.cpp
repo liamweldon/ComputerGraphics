@@ -2,8 +2,21 @@
 #include "Object.h"
 
 
-Object::Object(std::string fileToParse, bool texturedObj) {
+Object::Object(std::string fileToParse) : vbo_(QOpenGLBuffer::VertexBuffer), ibo_(QOpenGLBuffer::IndexBuffer), texture_(QOpenGLTexture::Target2D), numTris_(0), vertexSize_(0)
+{
+    //TODO: use getFilePathAndName to correctly get correct mtllib & texture file paths
+    //      Actually draw everything
+    //      MVP matrices
+    //      Read from command line
+    //      Would probably be much easier to make a class for vertices, and keep a list of them
+
+    vertices = QVector<QVector3D>();
+    normalVertices = QVector<QVector3D>();
+    texCoords = QVector<QVector2D>();
     
+    std::string mtlFile;
+
+
     numVerts = 0;
     numIndices = 0;
 
@@ -20,76 +33,77 @@ Object::Object(std::string fileToParse, bool texturedObj) {
         if (data.size() <= 1) {
             continue;
         }
+        else if (data.at(0).compare("mtllib") && data.size == 2) {
+            mtlFile = data.at(1);
+        }
+
         else if (data.at(0).compare("v") == 0 && data.size() == 4) {
-            GLfloat* vertex = (GLfloat*) malloc(3 * sizeof(GLfloat));
-            vertex[0] = std::stof(data.at(1));
-            vertex[1] = std::stof(data.at(2));
-            vertex[2] = std::stof(data.at(3));
-            vertices.push_back(vertex);
+            QVector3D vertex = QVector3D(std::stof(data.at(1)), std::stof(data.at(2)), std::stof(data.at(3)));
+            vertices.append(vertex);
             numVerts += 3;
         }
-        else if (data.at(0).compare("vn") == 0 && data.size() == 4) {
-            GLfloat* vertexNormal = (GLfloat*) malloc(3 * sizeof(GLfloat));;
-            vertexNormal[0] = std::stof(data.at(1));
-            vertexNormal[1] = std::stof(data.at(2));
-            vertexNormal[2] = std::stof(data.at(3));
-            normalVertices.push_back(vertexNormal);
+        else if (data.at(0).compare("vt") == 0 && data.size() == 3) {
+            QVector2D texCoord = QVector2D(std::stof(data.at(1)), std::stof(data.at(2)));
+            texCoords.append(texCoord);
         }
+        else if (data.at(0).compare("vn") == 0 && data.size() == 4) {
+            QVector3D vertexNormal = QVector3D(std::stof(data.at(1)), std::stof(data.at(2)), std::stof(data.at(3)));
+            normalVertices.append(vertexNormal);
+        }
+        
         else if (data.at(0).compare("f") == 0 && data.size() == 4) {
-            GLuint* face = (GLuint*)malloc(3 * sizeof(GLuint));
-            GLuint* normalFace = (GLuint*)malloc(3 * sizeof(GLuint));
+
+            
             for (int i = 0; i < 3; i++) {
-                if (texturedObj) {
-                    std::string slashedFaceIdx = data.at(i + 1);
-                    std::vector<std::string> idxData = splitString(slashedFaceIdx, '/');
-                    face[i] = std::stoi(idxData.at(0)) - 1;
-                    //TODO: double check this, I believe texture data is in the middle
-                    normalFace[i] = std::stoi(idxData.at(2)) - 1;
-                }
-                else {
-                    std::string slashedFaceIdx = data.at(i + 1);
-                    int pos = slashedFaceIdx.find('/');
-                    if (pos != std::string::npos)
-                        slashedFaceIdx.erase(pos, 1);
-                    std::vector<std::string> idxNormalIdxTouple = splitString(slashedFaceIdx, '/');
-                    face[i] = std::stoi(idxNormalIdxTouple.at(0)) - 1;
-                    normalFace[i] = std::stoi(idxNormalIdxTouple.at(1)) - 1;
-                }
+                std::string slashedFaceIdx = data.at(i + 1);
+                std::vector<std::string> idxData = splitString(slashedFaceIdx, '/');
+                vertexIndices.append(std::stoi(idxData.at(0)) - 1);
+                textureIndices.append(std::stoi(idxData.at(1)) - 1);
+                normalIndices.append(std::stoi(idxData.at(2)) - 1);
             }
             numIndices += 3;
-            faces.push_back(face);
-            facesNormal.push_back(normalFace);
         }
     }
     objFile.close();
+
+    parseMtl(mtlFile);
 }
 
 Object::~Object() {
-    for (int i = 0; i < vertices.size(); i++) {
-        delete[] vertices.at(i);
+    if (texture_.isCreated()) {
+        texture_.destroy();
     }
-
-    for (int i = 0; i < normalVertices.size(); i++) {
-        delete[] normalVertices.at(i);
+    if (vbo_.isCreated()) {
+        vbo_.destroy();
     }
-
-    for (int i = 0; i < faces.size(); i++) {
-        delete[] faces.at(i);
+    if (ibo_.isCreated()) {
+        ibo_.destroy();
     }
-
+    if (vao_.isCreated()) {
+        vao_.destroy();
+    }
 }
 
+void Object::parseMtl(std::string mtlFile) {
+    std::ifstream stream;
+    stream.open(mtlFile);
 
-GLuint* Object::consolidateIndices() {
+    std::string line;
 
-    const int numInts = 3 * faces.size();
-    GLuint* indices = (GLuint*)malloc(numInts * sizeof(GL_UNSIGNED_INT));
-    for (int i = 0; i < faces.size(); i++) {
-        indices[3 * i + 0] = faces.at(i)[0];
-        indices[3 * i + 1] = faces.at(i)[1];
-        indices[3 * i + 2] = faces.at(i)[2];
+    while (stream.is_open() && getline(stream, line)) {
+
+        std::vector<std::string> data = splitString(line, ' ');
+        if (data.size() <= 1) {
+            continue;
+        }
+        else if (data.at(0).compare("map_Kd") && data.size == 2) {
+            texture_.setData(QImage(QString::fromStdString(data.at(1))));
+            stream.close();
+            return;
+        }
     }
-    return indices;
+    stream.close();
+    qDebug() << "ERROR: Texture File not found in file " << QString::fromStdString(mtlFile) << "!!\n";
 }
 
 // split string by token
@@ -110,15 +124,14 @@ std::vector<std::string> Object::splitString(std::string splitMe, char token) {
 }
 
 
-GLfloat* Object::consolidateVertices() {
-    const int numFloats = 3 * vertices.size();
-    GLfloat* allVertices = (GLfloat*)malloc(numFloats * sizeof(GL_FLOAT));
-
-    for (int i = 0; i < vertices.size(); i++) {
-        allVertices[3 * i + 0] = vertices.at(i)[0];
-        allVertices[3 * i + 1] = vertices.at(i)[1];
-        allVertices[3 * i + 2] = vertices.at(i)[2];
+std::vector<std::string> Object::getFilePathAndName(std::string relativePath) {
+    std::vector<std::string> splitBySlash = splitString(relativePath, '/');
+    std::vector<std::string> filePathName;
+    std::string filePath;
+    int lastIdx = splitBySlash.size - 1;
+    for (int i = 0; i < lastIdx; i++) {
+        filePath = filePath + splitBySlash.at(i);
     }
-
-    return allVertices;
+    filePathName.push_back(filePath);
+    filePathName.push_back(splitBySlash.at(lastIdx));
 }
