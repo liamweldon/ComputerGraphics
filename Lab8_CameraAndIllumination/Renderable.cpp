@@ -26,12 +26,12 @@ Renderable::~Renderable()
 
 void Renderable::createShaders()
 {
-	QString vertexFilename = "../../vert.glsl";
+	QString vertexFilename = "../vert.glsl";
 	bool ok = shader_.addShaderFromSourceFile(QOpenGLShader::Vertex, vertexFilename);
 	if (!ok) {
 		qDebug() << shader_.log();
 	}
-	QString fragmentFilename = "../../frag.glsl";
+	QString fragmentFilename = "../frag.glsl";
 	ok = shader_.addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentFilename);
 	if (!ok) {
 		qDebug() << shader_.log();
@@ -61,7 +61,7 @@ void Renderable::init(const QVector<QVector3D>& positions, const QVector<QVector
 	// set our number of trianges.
 	numTris_ = indexes.size() / 3;
 
-	// num verts (used to size our vbo)
+	// num verts (used to size our vbo)f
 	int numVerts = positions.size();
 	vertexSize_ = 3 + 3 + 2;  // Position + normal + texCoord
 	int numVBOEntries = numVerts * vertexSize_;
