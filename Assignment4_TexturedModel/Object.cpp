@@ -2,17 +2,16 @@
 #include "Object.h"
 
 
-Object::Object(std::string fileToParse) : vbo_(QOpenGLBuffer::VertexBuffer), ibo_(QOpenGLBuffer::IndexBuffer), texture_(QOpenGLTexture::Target2D), numTris_(0), vertexSize_(0)
+Object::Object(std::string fileToParse) : vbo_(QOpenGLBuffer::VertexBuffer), ibo_(QOpenGLBuffer::IndexBuffer), texture_(QOpenGLTexture::Target2D), numTris_(0), vertexSize_(0), 
+vertices(QVector<QVector3D>()), normalVertices(QVector<QVector3D>()), texCoords(QVector<QVector2D>()), vertexIndices(QVector<unsigned int>()), normalIndices(QVector<unsigned int>()),
+textureIndices(QVector<unsigned int>())
 {
-    //TODO: use getFilePathAndName to correctly get correct mtllib & texture file paths
+    //TODO:
     //      Actually draw everything
     //      MVP matrices
     //      Read from command line
     //      Would probably be much easier to make a class for vertices, and keep a list of them
 
-    vertices = QVector<QVector3D>();
-    normalVertices = QVector<QVector3D>();
-    texCoords = QVector<QVector2D>();
     
     std::string mtlFile;
 
@@ -23,6 +22,8 @@ Object::Object(std::string fileToParse) : vbo_(QOpenGLBuffer::VertexBuffer), ibo
     std::ifstream objFile;
     
     objFile.open(fileToParse);
+    std::string path = getFilePathAndName(fileToParse).at(0);
+
 
     std::string line;
 
@@ -34,7 +35,7 @@ Object::Object(std::string fileToParse) : vbo_(QOpenGLBuffer::VertexBuffer), ibo
             continue;
         }
         else if (data.at(0).compare("mtllib") && data.size == 2) {
-            mtlFile = data.at(1);
+            mtlFile = path + data.at(1);
         }
 
         else if (data.at(0).compare("v") == 0 && data.size() == 4) {
@@ -87,7 +88,9 @@ Object::~Object() {
 void Object::parseMtl(std::string mtlFile) {
     std::ifstream stream;
     stream.open(mtlFile);
-
+    
+    std::string path = getFilePathAndName(mtlFile).at(0);
+    
     std::string line;
 
     while (stream.is_open() && getline(stream, line)) {
@@ -97,7 +100,7 @@ void Object::parseMtl(std::string mtlFile) {
             continue;
         }
         else if (data.at(0).compare("map_Kd") && data.size == 2) {
-            texture_.setData(QImage(QString::fromStdString(data.at(1))));
+            texture_.setData(QImage(QString::fromStdString(path + data.at(1))));
             stream.close();
             return;
         }

@@ -143,8 +143,8 @@ void BasicWidget::initializeGL()
 
   createShader();
 
-  obj1 = new Object(DEFAULT_OBJ_FILE, TEXTURED_OBJ);
-  obj2 = new Object(ALTERNATE_OBJ_FILE, TEXTURED_OBJ);
+  obj1 = new Object(DEFAULT_OBJ_FILE);
+  obj2 = new Object(ALTERNATE_OBJ_FILE);
 
   vao_.create();
   vao_.bind();
