@@ -20,7 +20,9 @@ void main()
 {
     // TODO:  Extract the height from our heightmap and modify 
     // our input position.
-    vec4 mappedPos = vec4(position, 1.0);
+    float yCoord = texture(tex, textureCoords)[1] / 5.0;
+
+    vec4 mappedPos = vec4(position[0], yCoord, position[2], 1.0);
 
     // We have our transformed position set properly now
     gl_Position = projectionMatrix*viewMatrix*modelMatrix*mappedPos;
