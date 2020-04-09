@@ -18,23 +18,9 @@ class BasicWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
 private:
 
-    QString vertexShaderString() const;
-    QString fragmentShaderString() const;
-    void createShader();
-    QOpenGLVertexArrayObject vao_;
-
-    void displayObject(GLuint vboID, GLuint iboID, Object* obj);
-
-    void loadVertexBuffer(GLuint* bufferID, Object* obj);
-    void loadIndexBuffer(GLuint* bufferID, Object* obj);
-
     Object* obj1;
 
 protected:
-    GLuint vboID_;
-    GLuint iboID_;
-    unsigned int shaderID_;
-    unsigned int compileShader(unsigned int type, const QString& shaderSrc);
 
 
   // Required interaction overrides

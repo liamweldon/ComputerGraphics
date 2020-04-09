@@ -24,17 +24,26 @@ private:
 
     // Each renderable has its own model matrix
     QMatrix4x4 modelMatrix_;
-    // For now, we have only one shader per object
-    QOpenGLShaderProgram shader_;
-    // For now, we have only one texture per object
-    QOpenGLTexture texture_;
-    // For now, we have a single unified buffer per object
-    QOpenGLBuffer vbo_;
-    // Make sure we have an index buffer.
-    QOpenGLBuffer ibo_;
+
     // We have a single draw call, so a single vao
     QOpenGLVertexArrayObject vao_;
     // Keep track of how many triangles we actually have to draw in our ibo
+
+    // For now, we have only one texture per object
+    QOpenGLTexture texture_;
+
+    // For now, we have only one shader per object
+    QOpenGLShaderProgram shader_;
+
+    // For now, we have a single unified buffer per object
+    QOpenGLBuffer vbo_;
+
+    // Make sure we have an index buffer.
+    QOpenGLBuffer ibo_;
+
+    void loadVertexBuffer();
+    void loadIndexBuffer();
+
     unsigned int numTris_;
     int vertexSize_;
 
@@ -42,12 +51,15 @@ private:
     void createShaders();
 
     void parseMtl(std::string mtlFile);
+    void parseObjFile(std::string fileToParse);
 
 
 protected:
 
 
 public:
+
+
 
     QVector<QVector3D> vertices;
     QVector<QVector3D> normalVertices;
@@ -66,6 +78,9 @@ public:
 
     //TODO: this is never called?
     void setModelMatrix(const QMatrix4x4& transform);
+
+    virtual void draw();
+
 
     Object(std::string fileToParse);
     ~Object();

@@ -7,66 +7,30 @@ vertices(QVector<QVector3D>()), normalVertices(QVector<QVector3D>()), texCoords(
 textureIndices(QVector<unsigned int>())
 {
     //TODO:
-    //      Actually draw everything
     //      MVP matrices
     //      Read from command line
     //      Would probably be much easier to make a class for vertices, and keep a list of them
 
-    
-    std::string mtlFile;
+    parseObjFile(fileToParse);
+    createShaders();
 
+    vao_.create();
+    vao_.bind();
+    vbo_.create();
+    vbo_.bind();
+    loadVertexBuffer();
+    ibo_.create();
+    ibo_.bind();
+    loadIndexBuffer();
 
-    numVerts = 0;
-    numIndices = 0;
+    shader_.enableAttributeArray(0);
+    shader_.setAttributeBuffer(0, GL_FLOAT, 0, 3, 5 * sizeof(float));
+    shader_.enableAttributeArray(1);
+    shader_.setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), 2, 5 * sizeof(float));
 
-    std::ifstream objFile;
-    
-    objFile.open(fileToParse);
-    std::vector<std::string> fpName = getFilePathAndName(fileToParse);
-    std::string path = fpName.at(0);
-
-    std::string line;
-
-    while (objFile.is_open() && getline(objFile, line)) {
-      
-        std::vector<std::string> data = splitString(line, ' ');
-        if (data.size() <= 1) {
-            continue;
-        }
-        else if (data.at(0).compare("mtllib") == 0 && data.size() == 2) {
-            mtlFile = path + data.at(1);
-        }
-
-        else if (data.at(0).compare("v") == 0 && data.size() == 4) {
-            QVector3D vertex = QVector3D(std::stof(data.at(1)), std::stof(data.at(2)), std::stof(data.at(3)));
-            vertices.append(vertex);
-            numVerts += 3;
-        }
-        else if (data.at(0).compare("vt") == 0 && data.size() == 3) {
-            QVector2D texCoord = QVector2D(std::stof(data.at(1)), std::stof(data.at(2)));
-            texCoords.append(texCoord);
-        }
-        else if (data.at(0).compare("vn") == 0 && data.size() == 4) {
-            QVector3D vertexNormal = QVector3D(std::stof(data.at(1)), std::stof(data.at(2)), std::stof(data.at(3)));
-            normalVertices.append(vertexNormal);
-        }
-        
-        else if (data.at(0).compare("f") == 0 && data.size() == 4) {
-
-            
-            for (int i = 0; i < 3; i++) {
-                std::string slashedFaceIdx = data.at(i + 1);
-                std::vector<std::string> idxData = splitString(slashedFaceIdx, '/');
-                vertexIndices.append(std::stoi(idxData.at(0)) - 1);
-                textureIndices.append(std::stoi(idxData.at(1)) - 1);
-                normalIndices.append(std::stoi(idxData.at(2)) - 1);
-            }
-            numIndices += 3;
-        }
-    }
-    objFile.close();
-
-    parseMtl(mtlFile);
+    vao_.release();
+    vbo_.release();
+    ibo_.release();
 }
 
 Object::~Object() {
@@ -139,4 +103,134 @@ std::vector<std::string> Object::getFilePathAndName(std::string relativePath) {
     filePathName.push_back(filePath);
     filePathName.push_back(splitBySlash.at(lastIdx));
     return filePathName;
+}
+
+void Object::parseObjFile(std::string fileToParse) {
+    std::string mtlFile;
+
+
+    numVerts = 0;
+    numIndices = 0;
+
+    std::ifstream objFile;
+
+    objFile.open(fileToParse);
+    std::vector<std::string> fpName = getFilePathAndName(fileToParse);
+    std::string path = fpName.at(0);
+
+    std::string line;
+
+    while (objFile.is_open() && getline(objFile, line)) {
+
+        std::vector<std::string> data = splitString(line, ' ');
+        if (data.size() <= 1) {
+            continue;
+        }
+        else if (data.at(0).compare("mtllib") == 0 && data.size() == 2) {
+            mtlFile = path + data.at(1);
+        }
+
+        else if (data.at(0).compare("v") == 0 && data.size() == 4) {
+            QVector3D vertex = QVector3D(std::stof(data.at(1)), std::stof(data.at(2)), std::stof(data.at(3)));
+            vertices.append(vertex);
+            numVerts += 3;
+        }
+        else if (data.at(0).compare("vt") == 0 && data.size() == 3) {
+            QVector2D texCoord = QVector2D(std::stof(data.at(1)), std::stof(data.at(2)));
+            texCoords.append(texCoord);
+        }
+        else if (data.at(0).compare("vn") == 0 && data.size() == 4) {
+            QVector3D vertexNormal = QVector3D(std::stof(data.at(1)), std::stof(data.at(2)), std::stof(data.at(3)));
+            normalVertices.append(vertexNormal);
+        }
+
+        else if (data.at(0).compare("f") == 0 && data.size() == 4) {
+
+
+            for (int i = 0; i < 3; i++) {
+                std::string slashedFaceIdx = data.at(i + 1);
+                std::vector<std::string> idxData = splitString(slashedFaceIdx, '/');
+                vertexIndices.append(std::stoi(idxData.at(0)) - 1);
+                textureIndices.append(std::stoi(idxData.at(1)) - 1);
+                normalIndices.append(std::stoi(idxData.at(2)) - 1);
+            }
+            numIndices += 3;
+        }
+    }
+    objFile.close();
+
+    parseMtl(mtlFile);
+}
+
+
+void Object::createShaders() {
+
+    QString vertexFilename = "../vert.glsl";
+    bool ok = shader_.addShaderFromSourceFile(QOpenGLShader::Vertex, vertexFilename);
+    if (!ok) {
+        qDebug() << shader_.log();
+    }
+    QString fragmentFilename = "../frag.glsl";
+    ok = shader_.addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentFilename);
+    if (!ok) {
+        qDebug() << shader_.log();
+    }
+    ok = shader_.link();
+    if (!ok) {
+        std::cout << "ERROR with shader :(" << std::endl;
+        qDebug() << shader_.log();
+    }    
+}
+
+
+
+void Object::loadVertexBuffer()
+{
+    float* verticesPtr = (float*)malloc(sizeof(float) * 5 * vertices.size());
+
+    for (int i = 0; i < vertices.size(); i++) {
+        verticesPtr[(5 * i) + 0] = vertices.at(i)[0];
+        verticesPtr[(5 * i) + 1] = vertices.at(i)[1];
+        verticesPtr[(5 * i) + 2] = vertices.at(i)[2];
+        verticesPtr[(5 * i) + 3] = texCoords.at(i)[0];
+        verticesPtr[(5 * i) + 4] = texCoords.at(i)[1];
+    }
+
+
+    vbo_.setUsagePattern(QOpenGLBuffer::StaticDraw);
+
+
+    vbo_.allocate(verticesPtr, vertices.size() * 5 * sizeof(float));
+
+    delete[] verticesPtr;
+
+}
+
+void Object::loadIndexBuffer()
+{
+    
+    unsigned int* indicesPtr = (unsigned int*)malloc(vertexIndices.size() * sizeof(unsigned int));
+
+    for (int i = 0; i < vertexIndices.size(); i++) {
+        indicesPtr[i] = vertexIndices.at(i);
+    }
+
+
+    ibo_.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    ibo_.allocate(indicesPtr, vertexIndices.size() * sizeof(GL_UNSIGNED_INT));
+
+    delete[] indicesPtr;
+}
+
+
+void Object::draw()
+{
+    shader_.bind();
+    vao_.bind();
+    texture_.bind();
+
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+    texture_.release();
+    vao_.release();
+    shader_.release();
 }
