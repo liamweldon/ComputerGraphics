@@ -17,12 +17,9 @@ BasicWidget::~BasicWidget()
 {
     glDeleteProgram(shaderID_);
     glDeleteBuffers(1, &vboID_);
-    glDeleteBuffers(1, &vboID2_);
-    glDeleteBuffers(1, &iboID_);
     glDeleteBuffers(1, &iboID_);
 
     delete obj1;
-    delete obj2;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -116,11 +113,9 @@ void BasicWidget::keyReleaseEvent(QKeyEvent* keyEvent)
 {
 
     if (keyEvent->key() == Qt::Key_1) {
-        showObj1 = true;
         update();
     }
     else if (keyEvent->key() == Qt::Key_2) {
-        showObj1 = false;
         update();
     }
     else {
@@ -144,19 +139,17 @@ void BasicWidget::initializeGL()
   createShader();
 
   obj1 = new Object(DEFAULT_OBJ_FILE);
-  obj2 = new Object(ALTERNATE_OBJ_FILE);
 
   vao_.create();
   vao_.bind();
 
   loadVertexBuffer(&vboID_, obj1);
-  loadVertexBuffer(&vboID2_, obj2);
 
   loadIndexBuffer(&iboID_, obj1);
-  loadIndexBuffer(&iboID2_, obj2);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 
   vao_.release();
 
@@ -171,7 +164,16 @@ void BasicWidget::resizeGL(int w, int h)
 
 void BasicWidget::loadVertexBuffer(GLuint* bufferID, Object* obj)
 {
-    void* vertices = obj->consolidateVertices();
+    QVector<QVector3D> verticesVec = obj->vertices;
+   
+
+    float* vertices = (float*)malloc(sizeof(float) * 3 * verticesVec.size());
+
+    for (int i = 0; i < verticesVec.size(); i++) {
+        vertices[(3 * i) + 0] = verticesVec.at(i)[0];
+        vertices[(3 * i) + 1] = verticesVec.at(i)[1];
+        vertices[(3 * i) + 2] = verticesVec.at(i)[2];
+    }
 
     glGenBuffers(1, bufferID);
     glBindBuffer(GL_ARRAY_BUFFER, *bufferID);
@@ -182,7 +184,12 @@ void BasicWidget::loadVertexBuffer(GLuint* bufferID, Object* obj)
 
 void BasicWidget::loadIndexBuffer(GLuint* bufferID, Object* obj)
 {
-    void* indices = obj->consolidateIndices();
+    QVector<unsigned int> indicesVec = obj->vertexIndices;
+    unsigned int* indices = (unsigned int*)malloc(indicesVec.size() * sizeof(unsigned int));
+
+    for (int i = 0; i < indicesVec.size(); i++) {
+        indices[i] = indicesVec.at(i);
+    }
 
     glGenBuffers(1, bufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *bufferID);
@@ -205,8 +212,7 @@ void BasicWidget::paintGL()
  
   glEnableVertexAttribArray(0);
 
-  showObj1 ? displayObject(vboID_, iboID_, obj1) : displayObject(vboID2_, iboID2_, obj2);
-
+  displayObject(vboID_, iboID_, obj1);
   glDisableVertexAttribArray(0);
   glUseProgram(NULL);
   vao_.release();

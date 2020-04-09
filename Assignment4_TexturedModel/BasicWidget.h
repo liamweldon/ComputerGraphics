@@ -7,7 +7,6 @@
 
 
 #define DEFAULT_OBJ_FILE "../objects/house/house_obj.obj"
-#define ALTERNATE_OBJ_FILE "../objects/monkey_centered.obj"
 #define TEXTURED_OBJ true
 
 /**
@@ -30,13 +29,10 @@ private:
     void loadIndexBuffer(GLuint* bufferID, Object* obj);
 
     Object* obj1;
-    Object* obj2;
 
 protected:
     GLuint vboID_;
-    GLuint vboID2_;
     GLuint iboID_;
-    GLuint iboID2_;
     unsigned int shaderID_;
     unsigned int compileShader(unsigned int type, const QString& shaderSrc);
 
@@ -50,7 +46,6 @@ protected:
   void paintGL() override;
 
 public:
-  bool showObj1 = true;
   BasicWidget(QWidget* parent=nullptr);
   virtual ~BasicWidget();
   

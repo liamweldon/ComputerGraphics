@@ -49,20 +49,20 @@ protected:
 
 public:
 
-    QVector<QVector3D>& vertices;
-    QVector<QVector3D>& normalVertices;
-    QVector<QVector2D>& texCoords;
+    QVector<QVector3D> vertices;
+    QVector<QVector3D> normalVertices;
+    QVector<QVector2D> texCoords;
 
-    QVector<unsigned int>& vertexIndices;
-    QVector<unsigned int>& textureIndices;
-    QVector<unsigned int>& normalIndices;
+    QVector<unsigned int> vertexIndices;
+    QVector<unsigned int> textureIndices;
+    QVector<unsigned int> normalIndices;
 
     int numVerts;
     int numIndices;
 
-    //TODO: why virtual?
-    virtual void update(const qint64 msSinceLastFrame);
-    virtual void draw(const QMatrix4x4& view, const QMatrix4x4& projection);
+    ////TODO: why virtual?
+    //virtual void update(const qint64 msSinceLastFrame);
+    //virtual void draw(const QMatrix4x4& view, const QMatrix4x4& projection);
 
     //TODO: this is never called?
     void setModelMatrix(const QMatrix4x4& transform);

@@ -22,19 +22,18 @@ textureIndices(QVector<unsigned int>())
     std::ifstream objFile;
     
     objFile.open(fileToParse);
-    std::string path = getFilePathAndName(fileToParse).at(0);
-
+    std::vector<std::string> fpName = getFilePathAndName(fileToParse);
+    std::string path = fpName.at(0);
 
     std::string line;
 
     while (objFile.is_open() && getline(objFile, line)) {
       
         std::vector<std::string> data = splitString(line, ' ');
-
         if (data.size() <= 1) {
             continue;
         }
-        else if (data.at(0).compare("mtllib") && data.size == 2) {
+        else if (data.at(0).compare("mtllib") == 0 && data.size() == 2) {
             mtlFile = path + data.at(1);
         }
 
@@ -99,13 +98,15 @@ void Object::parseMtl(std::string mtlFile) {
         if (data.size() <= 1) {
             continue;
         }
-        else if (data.at(0).compare("map_Kd") && data.size == 2) {
+        else if (data.at(0).compare("map_Kd") == 0 && data.size() == 2) {
             texture_.setData(QImage(QString::fromStdString(path + data.at(1))));
             stream.close();
             return;
         }
     }
     stream.close();
+
+
     qDebug() << "ERROR: Texture File not found in file " << QString::fromStdString(mtlFile) << "!!\n";
 }
 
@@ -131,10 +132,11 @@ std::vector<std::string> Object::getFilePathAndName(std::string relativePath) {
     std::vector<std::string> splitBySlash = splitString(relativePath, '/');
     std::vector<std::string> filePathName;
     std::string filePath;
-    int lastIdx = splitBySlash.size - 1;
+    int lastIdx = splitBySlash.size() - 1;
     for (int i = 0; i < lastIdx; i++) {
-        filePath = filePath + splitBySlash.at(i);
+        filePath = filePath + splitBySlash.at(i) + "/";
     }
     filePathName.push_back(filePath);
     filePathName.push_back(splitBySlash.at(lastIdx));
+    return filePathName;
 }
