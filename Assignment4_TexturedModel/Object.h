@@ -17,6 +17,24 @@ class Object
 
 
 private:
+
+    struct VertexData {
+        float x, y, z;
+        float s, t;
+
+        VertexData(float _x, float _y, float _z, float _s, float _t) : x(_x), y(_y), z(_z), s(_s), t(_t) { }
+
+        VertexData(QVector3D pos, QVector2D tex) : x(pos[0]), y(pos[1]), z(pos[2]), s(tex[0]), t(tex[1]) { }
+
+        // Tests if two VertexData are equal
+        bool operator== (const VertexData& rhs) {
+            if ((x == rhs.x) && (y == rhs.y) && (z == rhs.z) && (s == rhs.s) && (t == rhs.t)) {
+                return true;
+            }
+            return false;
+        }
+    };
+
     // Relative path is path to a file, returns a vector
     // with path @ 0 and name @ 1
     std::vector<std::string> getFilePathAndName(std::string relativePath);
@@ -65,9 +83,9 @@ public:
     QVector<QVector3D> normalVertices;
     QVector<QVector2D> texCoords;
 
+    QVector<VertexData> indexedVertices;
+
     QVector<unsigned int> vertexIndices;
-    QVector<unsigned int> textureIndices;
-    QVector<unsigned int> normalIndices;
 
     int numVerts;
     int numIndices;

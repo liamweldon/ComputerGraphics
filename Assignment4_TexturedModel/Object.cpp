@@ -3,8 +3,7 @@
 
 
 Object::Object(std::string fileToParse) : vbo_(QOpenGLBuffer::VertexBuffer), ibo_(QOpenGLBuffer::IndexBuffer), texture_(QOpenGLTexture::Target2D), numTris_(0), vertexSize_(0), 
-vertices(QVector<QVector3D>()), normalVertices(QVector<QVector3D>()), texCoords(QVector<QVector2D>()), vertexIndices(QVector<unsigned int>()), normalIndices(QVector<unsigned int>()),
-textureIndices(QVector<unsigned int>())
+vertices(QVector<QVector3D>()), normalVertices(QVector<QVector3D>()), texCoords(QVector<QVector2D>()), vertexIndices(QVector<unsigned int>()), indexedVertices(QVector<VertexData>())
 {
     //TODO:
     //      MVP matrices
@@ -150,9 +149,18 @@ void Object::parseObjFile(std::string fileToParse) {
             for (int i = 0; i < 3; i++) {
                 std::string slashedFaceIdx = data.at(i + 1);
                 std::vector<std::string> idxData = splitString(slashedFaceIdx, '/');
-                vertexIndices.append(std::stoi(idxData.at(0)) - 1);
-                textureIndices.append(std::stoi(idxData.at(1)) - 1);
-                normalIndices.append(std::stoi(idxData.at(2)) - 1);
+
+                VertexData newVert = VertexData(vertices.at((std::stoi(idxData.at(0)) - 1)), texCoords.at(std::stoi(idxData.at(1)) - 1));
+                int idx = indexedVertices.indexOf(newVert);
+                
+                if (idx != -1) {
+                    vertexIndices.append(idx);
+                }
+                else {
+                    indexedVertices.append(newVert);
+                    vertexIndices.append(indexedVertices.size() - 1);
+                }
+
             }
             numIndices += 3;
         }
@@ -186,21 +194,21 @@ void Object::createShaders() {
 
 void Object::loadVertexBuffer()
 {
-    float* verticesPtr = (float*)malloc(sizeof(float) * 5 * vertices.size());
+    float* verticesPtr = (float*)malloc(sizeof(float) * 5 * indexedVertices.size());
 
-    for (int i = 0; i < vertices.size(); i++) {
-        verticesPtr[(5 * i) + 0] = vertices.at(i)[0];
-        verticesPtr[(5 * i) + 1] = vertices.at(i)[1];
-        verticesPtr[(5 * i) + 2] = vertices.at(i)[2];
-        verticesPtr[(5 * i) + 3] = texCoords.at(i)[0];
-        verticesPtr[(5 * i) + 4] = texCoords.at(i)[1];
+    for (int i = 0; i < indexedVertices.size(); i++) {
+        verticesPtr[(5 * i) + 0] = indexedVertices.at(i).x;
+        verticesPtr[(5 * i) + 1] = indexedVertices.at(i).y;
+        verticesPtr[(5 * i) + 2] = indexedVertices.at(i).z;
+        verticesPtr[(5 * i) + 3] = indexedVertices.at(i).s;
+        verticesPtr[(5 * i) + 4] = indexedVertices.at(i).t;
     }
 
 
     vbo_.setUsagePattern(QOpenGLBuffer::StaticDraw);
 
 
-    vbo_.allocate(verticesPtr, vertices.size() * 5 * sizeof(float));
+    vbo_.allocate(verticesPtr, indexedVertices.size() * 5 * sizeof(float));
 
     delete[] verticesPtr;
 
