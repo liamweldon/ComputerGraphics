@@ -33,6 +33,10 @@ private:
             }
             return false;
         }
+
+        std::string toString() {
+            return "(" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z) + "," + std::to_string(s) + "," + std::to_string(t) + ")";
+        }
     };
 
     // Relative path is path to a file, returns a vector

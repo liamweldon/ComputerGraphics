@@ -23,9 +23,9 @@ vertices(QVector<QVector3D>()), normalVertices(QVector<QVector3D>()), texCoords(
     loadIndexBuffer();
 
     shader_.enableAttributeArray(0);
-    shader_.setAttributeBuffer(0, GL_FLOAT, 0, 3, 5 * sizeof(float));
+    shader_.setAttributeBuffer(0, GL_FLOAT, 0, 3, 5 * sizeof(GL_FLOAT));
     shader_.enableAttributeArray(1);
-    shader_.setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), 2, 5 * sizeof(float));
+    shader_.setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(GL_FLOAT), 2, 5 * sizeof(GL_FLOAT));
 
     vao_.release();
     vbo_.release();
@@ -151,9 +151,11 @@ void Object::parseObjFile(std::string fileToParse) {
                 std::vector<std::string> idxData = splitString(slashedFaceIdx, '/');
 
                 VertexData newVert = VertexData(vertices.at((std::stoi(idxData.at(0)) - 1)), texCoords.at(std::stoi(idxData.at(1)) - 1));
+
+                //std::cout << newVert.toString() << std::endl;
                 int idx = indexedVertices.indexOf(newVert);
                 
-                if (idx != -1) {
+                if (idx >= 0) {
                     vertexIndices.append(idx);
                 }
                 else {
@@ -200,8 +202,8 @@ void Object::loadVertexBuffer()
         verticesPtr[(5 * i) + 0] = indexedVertices.at(i).x;
         verticesPtr[(5 * i) + 1] = indexedVertices.at(i).y;
         verticesPtr[(5 * i) + 2] = indexedVertices.at(i).z;
-        verticesPtr[(5 * i) + 3] = indexedVertices.at(i).s;
-        verticesPtr[(5 * i) + 4] = indexedVertices.at(i).t;
+        verticesPtr[(5 * i) + 3] = 1.0f - indexedVertices.at(i).s;
+        verticesPtr[(5 * i) + 4] = 1.0f - indexedVertices.at(i).t;
     }
 
 
