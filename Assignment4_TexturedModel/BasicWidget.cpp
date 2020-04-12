@@ -118,6 +118,13 @@ void BasicWidget::paintGL()
 
   glEnable(GL_DEPTH_TEST);
 
+  if (wireframeMode) {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  }
+  else {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
+
   obj1->update(msSinceRestart);
   obj1->draw(world_, camera_.getViewMatrix(), camera_.getProjectionMatrix());
   update();
