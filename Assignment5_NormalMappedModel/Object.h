@@ -62,8 +62,9 @@ private:
     QOpenGLVertexArrayObject vao_;
     // Keep track of how many triangles we actually have to draw in our ibo
 
-    // For now, we have only one texture per object
     QOpenGLTexture texture_;
+
+    QOpenGLTexture textureNorm_;
 
     // For now, we have only one shader per object
     QOpenGLShaderProgram shader_;

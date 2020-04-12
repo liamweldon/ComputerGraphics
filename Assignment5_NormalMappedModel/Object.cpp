@@ -1,8 +1,10 @@
 
 #include "Object.h"
 
+// TODO: Support multiple textures
 
-Object::Object(std::string fileToParse) : vbo_(QOpenGLBuffer::VertexBuffer), ibo_(QOpenGLBuffer::IndexBuffer), texture_(QOpenGLTexture::Target2D), numTris_(0), vertexSize_(0), 
+
+Object::Object(std::string fileToParse) : vbo_(QOpenGLBuffer::VertexBuffer), ibo_(QOpenGLBuffer::IndexBuffer), texture_(QOpenGLTexture::Target2D), textureNorm_(QOpenGLTexture::Target2D), numTris_(0), vertexSize_(0),
 vertices(QVector<QVector3D>()), normalVertices(QVector<QVector3D>()), texCoords(QVector<QVector2D>()), vertexIndices(QVector<unsigned int>()), indexedVertices(QVector<VertexData>()), rotationAxis_(0.0, 1.0, 0.0), rotationSpeed_(0.25)
 {
     parseObjFile(fileToParse);
@@ -22,9 +24,11 @@ vertices(QVector<QVector3D>()), normalVertices(QVector<QVector3D>()), texCoords(
     loadIndexBuffer();
 
     shader_.enableAttributeArray(0);
-    shader_.setAttributeBuffer(0, GL_FLOAT, 0, 3, 5 * sizeof(GL_FLOAT));
+    shader_.setAttributeBuffer(0, GL_FLOAT, 0, 3, 8 * sizeof(GL_FLOAT));
     shader_.enableAttributeArray(1);
-    shader_.setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(GL_FLOAT), 2, 5 * sizeof(GL_FLOAT));
+    shader_.setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(GL_FLOAT), 3, 8 * sizeof(GL_FLOAT));
+    shader_.enableAttributeArray(2);
+    shader_.setAttributeBuffer(2, GL_FLOAT, 6 * sizeof(GL_FLOAT), 2, 8 * sizeof(GL_FLOAT));
 
     vao_.release();
     vbo_.release();
@@ -34,6 +38,9 @@ vertices(QVector<QVector3D>()), normalVertices(QVector<QVector3D>()), texCoords(
 Object::~Object() {
     if (texture_.isCreated()) {
         texture_.destroy();
+    }
+    if (textureNorm_.isCreated()) {
+        textureNorm_.destroy();
     }
     if (vbo_.isCreated()) {
         vbo_.destroy();
@@ -62,14 +69,12 @@ void Object::parseMtl(std::string mtlFile) {
         }
         else if (data.at(0).compare("map_Kd") == 0 && data.size() == 2) {
             texture_.setData(QImage(QString::fromStdString(path + data.at(1))));
-            stream.close();
-            return;
+        }
+        else if (data.at(0).compare("map_Bump") == 0 && data.size() == 2) {
+            textureNorm_.setData(QImage(QString::fromStdString(path + data.at(1))));
         }
     }
     stream.close();
-
-
-    qDebug() << "ERROR: Texture File not found in file " << QString::fromStdString(mtlFile) << "!!\n";
 }
 
 // split string by token
@@ -167,7 +172,6 @@ void Object::parseObjFile(std::string fileToParse) {
         }
     }
     objFile.close();
-
     parseMtl(mtlFile);
 }
 
@@ -260,11 +264,22 @@ void Object::draw(const QMatrix4x4& world, const QMatrix4x4& view, const QMatrix
     shader_.setUniformValue("viewMatrix", view);
     shader_.setUniformValue("projectionMatrix", projection);
 
+    shader_.setUniformValue("pointLights[0].color", 1.0f, 1.0f, 1.0f);
+    shader_.setUniformValue("pointLights[0].position", QVector3D(0.5f, 0.5f, -5.0f));
+    shader_.setUniformValue("pointLights[0].ambientIntensity", 0.5f);
+    shader_.setUniformValue("pointLights[0].specularStrength", 0.5f);
+    shader_.setUniformValue("pointLights[0].constant", 1.0f);
+    shader_.setUniformValue("pointLights[0].linear", 0.09f);
+    shader_.setUniformValue("pointLights[0].quadratic", 0.032f);
+
+
     vao_.bind();
     texture_.bind();
+    //textureNorm_.bind();
 
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
     texture_.release();
+    //textureNorm_.release();
     vao_.release();
     shader_.release();
 }

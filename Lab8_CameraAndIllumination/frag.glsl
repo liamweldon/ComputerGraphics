@@ -51,8 +51,8 @@ void main() {
     float diffImpact = max(dot(norm, lightDir), 0.0);
     diffuseLight += diffImpact * pointLights[i].color;
 
-    // why is this (0,0,0)?
-    vec3 viewPos = vec3(0.0, 0.0, 0.0);
+    mat4 viewInverse = inverse(view);
+    vec3 viewPos = vec3(viewInverse[0][3], viewInverse[1][3], viewInverse[2][3]);
     vec3 viewDir = normalize(viewPos - fragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
 

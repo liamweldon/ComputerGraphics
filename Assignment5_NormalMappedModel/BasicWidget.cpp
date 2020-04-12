@@ -101,7 +101,7 @@ void BasicWidget::initializeGL()
 
 void BasicWidget::resizeGL(int w, int h)
 {
-  camera_.setPerspective(70.f, (float)w / (float)h, 0.001, 1000.0);
+  camera_.setPerspective(70.f, (float)w / (float)h, 0.001f, 1000.0f);
   glViewport(0, 0, w, h);
 }
 
