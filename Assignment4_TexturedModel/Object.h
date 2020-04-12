@@ -47,6 +47,12 @@ private:
     // Each renderable has its own model matrix
     QMatrix4x4 modelMatrix_;
 
+    // Define our axis of rotation for animation
+    QVector3D rotationAxis_;
+    float rotationSpeed_;
+    float rotationAngle_;
+
+
     // We have a single draw call, so a single vao
     QOpenGLVertexArrayObject vao_;
     // Keep track of how many triangles we actually have to draw in our ibo
@@ -101,7 +107,9 @@ public:
     //TODO: this is never called?
     void setModelMatrix(const QMatrix4x4& transform);
 
-    virtual void draw();
+    virtual void draw(const QMatrix4x4& world, const QMatrix4x4& view, const QMatrix4x4& projection);
+
+    void update(const qint64 msSinceLastFrame);
 
 
     Object(std::string fileToParse);

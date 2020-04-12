@@ -4,9 +4,10 @@
 #include <QtWidgets>
 #include <QtOpenGL>
 #include "Object.h"
+#include "Camera.h"
 
 
-#define DEFAULT_OBJ_FILE "../objects/house/house_obj.obj"
+#define DEFAULT_OBJ_FILE "../objects/capsule/capsule.obj"
 #define TEXTURED_OBJ true
 
 /**
@@ -17,14 +18,29 @@ class BasicWidget : public QOpenGLWidget, protected QOpenGLFunctions
   Q_OBJECT
 
 private:
+    QMatrix4x4 world_;
+    Camera camera_;
 
+    bool wireframeMode = false;
+
+    QElapsedTimer frameTimer_;
+
+    std::string objFile;
     Object* obj1;
+
+    // Mouse controls.
+    enum MouseControl { NoAction = 0, Rotate, Zoom };
+    QPoint lastMouseLoc_;
+    MouseControl mouseAction_;
 
 protected:
 
 
   // Required interaction overrides
   void keyReleaseEvent(QKeyEvent* keyEvent) override;
+  void mousePressEvent(QMouseEvent* mouseEvent) override;
+  void mouseMoveEvent(QMouseEvent* mouseEvent) override;
+  void mouseReleaseEvent(QMouseEvent* mouseEvent) override;
 
   // Required overrides form QOpenGLWidget
   void initializeGL() override;
@@ -33,6 +49,7 @@ protected:
 
 public:
   BasicWidget(QWidget* parent=nullptr);
+  void setObjFile(std::string objFile);
   virtual ~BasicWidget();
   
   // Make sure we have some size that makes sense.

@@ -3,15 +3,17 @@
 
 
 Object::Object(std::string fileToParse) : vbo_(QOpenGLBuffer::VertexBuffer), ibo_(QOpenGLBuffer::IndexBuffer), texture_(QOpenGLTexture::Target2D), numTris_(0), vertexSize_(0), 
-vertices(QVector<QVector3D>()), normalVertices(QVector<QVector3D>()), texCoords(QVector<QVector2D>()), vertexIndices(QVector<unsigned int>()), indexedVertices(QVector<VertexData>())
+vertices(QVector<QVector3D>()), normalVertices(QVector<QVector3D>()), texCoords(QVector<QVector2D>()), vertexIndices(QVector<unsigned int>()), indexedVertices(QVector<VertexData>()), rotationAxis_(0.0, 1.0, 0.0), rotationSpeed_(0.25)
 {
     //TODO:
     //      MVP matrices
-    //      Read from command line
-    //      Would probably be much easier to make a class for vertices, and keep a list of them
 
     parseObjFile(fileToParse);
     createShaders();
+    modelMatrix_.setToIdentity();
+    rotationAngle_ = 0.0;
+
+
 
     vao_.create();
     vao_.bind();
@@ -144,7 +146,8 @@ void Object::parseObjFile(std::string fileToParse) {
         }
 
         else if (data.at(0).compare("f") == 0 && data.size() == 4) {
-
+            // .obj file format requires vertices to be previously defined, so 
+            // it's ok to search for them here
 
             for (int i = 0; i < 3; i++) {
                 std::string slashedFaceIdx = data.at(i + 1);
@@ -152,7 +155,6 @@ void Object::parseObjFile(std::string fileToParse) {
 
                 VertexData newVert = VertexData(vertices.at((std::stoi(idxData.at(0)) - 1)), texCoords.at(std::stoi(idxData.at(1)) - 1));
 
-                //std::cout << newVert.toString() << std::endl;
                 int idx = indexedVertices.indexOf(newVert);
                 
                 if (idx >= 0) {
@@ -233,9 +235,32 @@ void Object::loadIndexBuffer()
 }
 
 
-void Object::draw()
+void Object::update(const qint64 msSinceLastFrame)
 {
+    // For this lab, we want our polygon to rotate. 
+    float sec = msSinceLastFrame / 1000.0f;
+    float anglePart = sec * rotationSpeed_ * 360.f;
+    rotationAngle_ += anglePart;
+    while (rotationAngle_ >= 360.0) {
+        rotationAngle_ -= 360.0;
+    }
+}
+
+void Object::draw(const QMatrix4x4& world, const QMatrix4x4& view, const QMatrix4x4& projection)
+{
+    // Create our model matrix.
+    QMatrix4x4 rotMatrix;
+    rotMatrix.setToIdentity();
+    rotMatrix.rotate(rotationAngle_, rotationAxis_);
+
+    QMatrix4x4 modelMat = modelMatrix_ * rotMatrix;
+    modelMat = world * modelMat;
+
     shader_.bind();
+    shader_.setUniformValue("modelMatrix", modelMat);
+    shader_.setUniformValue("viewMatrix", view);
+    shader_.setUniformValue("projectionMatrix", projection);
+
     vao_.bind();
     texture_.bind();
 

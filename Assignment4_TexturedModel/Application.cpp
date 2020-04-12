@@ -1,8 +1,7 @@
 #include "Application.h"
-
 #include "BasicWidget.h"
 
-Application::Application(QWidget* parent) : QMainWindow(parent)
+Application::Application(std::string objFile, QWidget* parent) : objFile(objFile), QMainWindow(parent)
 {
   buildGui();
 }
@@ -20,5 +19,10 @@ void Application::buildGui()
 
   // Our basic widget.
   BasicWidget* widget = new BasicWidget(this);
+  
+  if (!objFile.empty()) {
+      widget->setObjFile(objFile);
+  }
+
   setCentralWidget(widget);
 }
