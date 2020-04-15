@@ -7,7 +7,7 @@
 #include "Camera.h"
 #include "Emitter.h"
 
-#define DEFAULT_OBJ_FILE "../objects/capsule/capsule.obj"
+#define DEFAULT_OBJ_FILE "../../../objects/capsule/capsule.obj"
 #define TEXTURED_OBJ true
 
 /**

@@ -72,9 +72,6 @@ void BasicWidget::keyReleaseEvent(QKeyEvent* keyEvent)
         camera_.setLookAt(QVector3D(0.5, 0.5, 0.0));
         update();
     }
-    else if (keyEvent->key() == Qt::Key_S) {
-        stopRotating = !stopRotating;
-    }
     else {
         qDebug() << "You Pressed an unsupported Key!";
     }
@@ -99,8 +96,7 @@ void BasicWidget::initializeGL()
   else {
       obj1 = new Object(objFile);
   }
-
-  em_ = new Emitter(QVector3D(0.5f, 0.5f, -5.0f), QVector3D(0, 0, 0), 5, obj1);
+  em_ = new Emitter(QVector3D(0.5f, 0.5f, 2.0f), 5, obj1);
   glViewport(0, 0, width(), height());
   frameTimer_.start();
 }
@@ -131,9 +127,6 @@ void BasicWidget::paintGL()
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 
-  if (!stopRotating) {
-      obj1->update(msSinceRestart);
-  }
   em_->update(msSinceRestart, world_, camera_.getProjectionMatrix(), camera_.getViewMatrix());
   update();
 }

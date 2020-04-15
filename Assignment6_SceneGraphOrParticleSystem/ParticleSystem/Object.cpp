@@ -12,13 +12,13 @@ vertices(QVector<QVector3D>()), texCoords(QVector<QVector2D>()), vertexIndices(Q
     modelMatrix_.setToIdentity();
     rotationAngle_ = 0.0;
 
-
-
     vao_.create();
     vao_.bind();
+
     vbo_.create();
     vbo_.bind();
     loadVertexBuffer();
+
     ibo_.create();
     ibo_.bind();
     loadIndexBuffer();
@@ -27,7 +27,7 @@ vertices(QVector<QVector3D>()), texCoords(QVector<QVector2D>()), vertexIndices(Q
     shader_.setAttributeBuffer(0, GL_FLOAT, 0, 3, 5 * sizeof(GL_FLOAT));
     shader_.enableAttributeArray(1);
     shader_.setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(GL_FLOAT), 2, 5 * sizeof(GL_FLOAT));
-
+    
     vao_.release();
     vbo_.release();
     ibo_.release();
@@ -130,7 +130,7 @@ void Object::parseObjFile(std::string fileToParse) {
         else if (data.at(0).compare("v") == 0 && data.size() == 4) {
             QVector3D vertex = QVector3D(std::stof(data.at(1)), std::stof(data.at(2)), std::stof(data.at(3)));
             vertices.append(vertex);
-            numVerts += 3;
+            numVerts += 1;
         }
         else if (data.at(0).compare("vt") == 0 && data.size() == 3) {
             QVector2D texCoord = QVector2D(std::stof(data.at(1)), std::stof(data.at(2)));
@@ -194,8 +194,8 @@ void Object::loadVertexBuffer()
         verticesPtr[(5 * i) + 0] = indexedVertices.at(i).x;
         verticesPtr[(5 * i) + 1] = indexedVertices.at(i).y;
         verticesPtr[(5 * i) + 2] = indexedVertices.at(i).z;
-        verticesPtr[(5 * i) + 6] = 1.0f - indexedVertices.at(i).s;
-        verticesPtr[(5 * i) + 7] = 1.0f - indexedVertices.at(i).t;
+        verticesPtr[(5 * i) + 3] = 1.0f - indexedVertices.at(i).s;
+        verticesPtr[(5 * i) + 4] = 1.0f - indexedVertices.at(i).t;
     }
 
 
