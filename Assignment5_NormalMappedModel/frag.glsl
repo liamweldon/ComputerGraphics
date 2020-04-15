@@ -1,7 +1,8 @@
-#version 330
+#version 420
 in vec3 fragPos;
 in vec3 normCoords;
 in vec2 texCoords;
+in mat4 tbn;
 
 out vec4 fragColor;
 
@@ -21,15 +22,16 @@ struct PointLight {
     vec3 specular;
 };
 
-uniform sampler2D textureDiffuse;
-uniform sampler2D textureNorm;
+layout(binding = 0) uniform sampler2D textureDiffuse;
+layout(binding = 1) uniform sampler2D textureNorm;
+
 uniform mat4 viewMatrix;
 uniform PointLight pointLights[1];  // Our lights
 
 void main() {
   // Set our output fragment color to whatever we pull from our input texture (Note, change 'tex' to whatever the sampler is named)
   fragColor = texture(textureDiffuse, texCoords);
-  vec3 normal = texture(textureNorm, texCoords).xyz;
+  vec3 normal = -1 * texture(textureNorm, texCoords).xyz;
 
   vec3 diffuseColor = fragColor.rgb;
 

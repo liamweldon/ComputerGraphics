@@ -22,6 +22,7 @@ private:
     Camera camera_;
 
     bool wireframeMode = false;
+    bool stopRotating = true;
 
     QElapsedTimer frameTimer_;
 

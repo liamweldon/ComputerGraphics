@@ -1,7 +1,7 @@
 
 #include "Object.h"
 
-// TODO: Support multiple textures
+// TODO: tangent matrix stuff
 
 
 Object::Object(std::string fileToParse) : vbo_(QOpenGLBuffer::VertexBuffer), ibo_(QOpenGLBuffer::IndexBuffer), texture_(QOpenGLTexture::Target2D), textureNorm_(QOpenGLTexture::Target2D), numTris_(0), vertexSize_(0),
@@ -266,20 +266,20 @@ void Object::draw(const QMatrix4x4& world, const QMatrix4x4& view, const QMatrix
 
     shader_.setUniformValue("pointLights[0].color", 1.0f, 1.0f, 1.0f);
     shader_.setUniformValue("pointLights[0].position", QVector3D(0.5f, 0.5f, -5.0f));
-    shader_.setUniformValue("pointLights[0].ambientIntensity", 0.5f);
-    shader_.setUniformValue("pointLights[0].specularStrength", 0.5f);
+    shader_.setUniformValue("pointLights[0].ambientIntensity", 0.2f);
+    shader_.setUniformValue("pointLights[0].specularStrength", 1.0f);
     shader_.setUniformValue("pointLights[0].constant", 1.0f);
     shader_.setUniformValue("pointLights[0].linear", 0.09f);
     shader_.setUniformValue("pointLights[0].quadratic", 0.032f);
 
 
     vao_.bind();
-    texture_.bind();
-    //textureNorm_.bind();
+    texture_.bind(0);
+    textureNorm_.bind(1);
 
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
     texture_.release();
-    //textureNorm_.release();
+    textureNorm_.release();
     vao_.release();
     shader_.release();
 }
